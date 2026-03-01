@@ -3,6 +3,10 @@ import { Resend } from "resend";
 
 import { MailService } from "./mail.service";
 
+jest.mock("@react-email/render", () => ({
+  render: jest.fn().mockResolvedValue("<html><body>ok</body></html>")
+}));
+
 jest.mock("resend", () => ({
   Resend: jest.fn().mockImplementation(() => ({
     emails: {
@@ -56,5 +60,6 @@ describe("MailService", () => {
     ).resolves.toBeUndefined();
 
     expect(loggerSpy).toHaveBeenCalled();
+    loggerSpy.mockRestore();
   });
 });

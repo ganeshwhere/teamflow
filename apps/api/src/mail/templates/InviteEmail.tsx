@@ -16,7 +16,7 @@ type InviteEmailProps = {
   inviteUrl: string;
 };
 
-export function InviteEmail({ inviterName, teamName, inviteUrl }: InviteEmailProps): JSX.Element {
+export function InviteEmail({ inviterName, teamName, inviteUrl }: InviteEmailProps) {
   return (
     <Html>
       <Head />

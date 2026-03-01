@@ -26,7 +26,7 @@ export function TaskAssignedEmail({
   teamName,
   taskUrl,
   priority
-}: TaskAssignedEmailProps): JSX.Element {
+}: TaskAssignedEmailProps) {
   return (
     <Html>
       <Head />

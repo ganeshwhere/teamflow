@@ -1,6 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-export function SectionSkeleton(): JSX.Element {
+export function SectionSkeleton() {
   return (
     <div className="grid gap-3">
       <Skeleton className="h-10 w-full" />

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { groupTasksByStatus, taskStatuses, type TaskBoardItem } from "./task-board.utils";
 
-export function TaskBoard({ tasks, basePath }: { tasks: TaskBoardItem[]; basePath: string }): JSX.Element {
+export function TaskBoard({ tasks, basePath }: { tasks: TaskBoardItem[]; basePath: string }) {
   const [view, setView] = useState<"kanban" | "table">("kanban");
 
   const grouped = useMemo(() => groupTasksByStatus(tasks), [tasks]);

@@ -35,7 +35,7 @@ export class MailService {
     await this.sendEmailSafely({
       to: payload.to,
       subject: `${payload.inviterName} invited you to ${payload.teamName}`,
-      html: render(InviteEmail(payload))
+      html: await render(InviteEmail(payload))
     });
   }
 
@@ -43,7 +43,7 @@ export class MailService {
     await this.sendEmailSafely({
       to: payload.to,
       subject: `Task assigned: ${payload.taskTitle}`,
-      html: render(TaskAssignedEmail(payload))
+      html: await render(TaskAssignedEmail(payload))
     });
   }
 

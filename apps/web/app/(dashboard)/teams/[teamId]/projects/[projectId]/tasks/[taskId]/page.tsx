@@ -7,9 +7,10 @@ import { Card } from "@/components/ui/card";
 export default async function TaskDetailPage({
   params
 }: {
-  params: { teamId: string; projectId: string; taskId: string };
-}): Promise<JSX.Element> {
-  const result = await getTask(params.projectId, params.taskId);
+  params: Promise<{ teamId: string; projectId: string; taskId: string }>;
+}) {
+  const { teamId, projectId, taskId } = await params;
+  const result = await getTask(projectId, taskId);
   const task =
     (result.data as {
       id: string;
@@ -30,12 +31,12 @@ export default async function TaskDetailPage({
 
   return (
     <main className="mx-auto grid w-full max-w-3xl gap-4">
-      <Link href={`/teams/${params.teamId}/projects/${params.projectId}/tasks`} className="text-sm text-blue-700 hover:underline">
+      <Link href={`/teams/${teamId}/projects/${projectId}/tasks`} className="text-sm text-blue-700 hover:underline">
         Back to tasks
       </Link>
       <Card>
         <h1 className="mb-3 text-xl font-semibold">Task Details</h1>
-        <TaskEditForm projectId={params.projectId} task={task} />
+        <TaskEditForm projectId={projectId} task={task} />
       </Card>
     </main>
   );

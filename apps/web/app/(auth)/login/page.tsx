@@ -1,6 +1,6 @@
 import { signIn } from "@/lib/auth";
 
-export default function LoginPage(): JSX.Element {
+export default function LoginPage() {
   async function signInWithGoogle(): Promise<void> {
     "use server";
     await signIn("google", { redirectTo: "/dashboard" });

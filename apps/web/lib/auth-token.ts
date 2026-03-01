@@ -3,6 +3,7 @@ import { sign } from "jsonwebtoken";
 
 export function createApiToken(token: JWT): string {
   const secret = process.env.NEXTAUTH_SECRET ?? "";
+  const expiresIn = (process.env.JWT_EXPIRY ?? "7d") as import("jsonwebtoken").SignOptions["expiresIn"];
 
   return sign(
     {
@@ -13,7 +14,7 @@ export function createApiToken(token: JWT): string {
     },
     secret,
     {
-      expiresIn: process.env.JWT_EXPIRY ?? "7d"
+      expiresIn
     }
   );
 }

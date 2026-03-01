@@ -15,7 +15,7 @@ async function ProjectOverview({
 }: {
   teamId: string;
   projectId: string;
-}): Promise<JSX.Element> {
+}) {
   const projectResult = await getProject(teamId, projectId);
   const tasksResult = await getTasks(projectId);
 
@@ -75,15 +75,16 @@ async function ProjectOverview({
   );
 }
 
-export default function ProjectPage({
+export default async function ProjectPage({
   params
 }: {
-  params: { teamId: string; projectId: string };
-}): JSX.Element {
+  params: Promise<{ teamId: string; projectId: string }>;
+}) {
+  const { teamId, projectId } = await params;
+
   return (
     <Suspense fallback={<SectionSkeleton />}>
-      {/* @ts-expect-error Async server component */}
-      <ProjectOverview teamId={params.teamId} projectId={params.projectId} />
+      <ProjectOverview teamId={teamId} projectId={projectId} />
     </Suspense>
   );
 }

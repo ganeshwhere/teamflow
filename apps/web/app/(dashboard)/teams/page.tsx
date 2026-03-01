@@ -6,7 +6,7 @@ import { SectionSkeleton } from "@/components/layout/section-skeleton";
 import { CreateTeamForm } from "@/components/teams/create-team-form";
 import { Card } from "@/components/ui/card";
 
-async function TeamsList(): Promise<JSX.Element> {
+async function TeamsList() {
   const result = await getMyTeams();
   const teams = (result.data as Array<{ id: string; name: string; description?: string | null }> | null) ?? [];
 
@@ -30,7 +30,7 @@ async function TeamsList(): Promise<JSX.Element> {
   );
 }
 
-export default function TeamsPage(): JSX.Element {
+export default function TeamsPage() {
   return (
     <main className="grid gap-6 lg:grid-cols-[2fr_1fr]">
       <section className="grid gap-3">
@@ -41,7 +41,6 @@ export default function TeamsPage(): JSX.Element {
           </Link>
         </div>
         <Suspense fallback={<SectionSkeleton />}>
-          {/* @ts-expect-error Async server component */}
           <TeamsList />
         </Suspense>
       </section>

@@ -4,12 +4,12 @@ import { joinTeam } from "@/actions/team.actions";
 import { Card } from "@/components/ui/card";
 import { decodeTeamIdFromToken } from "@/lib/invite-token";
 
-export default function InvitePage({
+export default async function InvitePage({
   searchParams
 }: {
-  searchParams: { token?: string };
-}): JSX.Element {
-  const token = searchParams.token;
+  searchParams: Promise<{ token?: string }>;
+}) {
+  const { token } = await searchParams;
   const teamId = token ? decodeTeamIdFromToken(token) : null;
 
   async function acceptInvite(): Promise<void> {

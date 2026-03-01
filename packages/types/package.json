@@ -7,10 +7,7 @@
   "types": "src/index.ts",
   "scripts": {
     "build": "tsc --project tsconfig.json",
-    "lint": "eslint src --ext .ts"
-  },
-  "dependencies": {
-    "@prisma/client": "^5.20.0"
+    "lint": "tsc --noEmit --project tsconfig.json"
   },
   "devDependencies": {
     "eslint": "^9.12.0",

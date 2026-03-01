@@ -9,7 +9,7 @@ import { InviteMemberForm } from "@/components/teams/invite-member-form";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 
-async function TeamOverview({ teamId }: { teamId: string }): Promise<JSX.Element> {
+async function TeamOverview({ teamId }: { teamId: string }) {
   const teamResult = await getTeam(teamId);
   const projectsResult = await getProjects(teamId);
 
@@ -85,11 +85,16 @@ async function TeamOverview({ teamId }: { teamId: string }): Promise<JSX.Element
   );
 }
 
-export default function TeamPage({ params }: { params: { teamId: string } }): JSX.Element {
+export default async function TeamPage({
+  params
+}: {
+  params: Promise<{ teamId: string }>;
+}) {
+  const { teamId } = await params;
+
   return (
     <Suspense fallback={<SectionSkeleton />}>
-      {/* @ts-expect-error Async server component */}
-      <TeamOverview teamId={params.teamId} />
+      <TeamOverview teamId={teamId} />
     </Suspense>
   );
 }

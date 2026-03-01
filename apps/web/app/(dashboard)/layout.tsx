@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function DashboardLayout({
   children
-}: Readonly<{ children: React.ReactNode }>): JSX.Element {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <div className="min-h-screen bg-slate-100">
       <header className="border-b border-slate-200 bg-white">

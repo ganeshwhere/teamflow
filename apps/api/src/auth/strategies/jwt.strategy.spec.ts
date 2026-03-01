@@ -3,6 +3,10 @@ import { UnauthorizedException } from "@nestjs/common";
 import { JwtStrategy } from "./jwt.strategy";
 
 describe("JwtStrategy", () => {
+  beforeEach(() => {
+    process.env.NEXTAUTH_SECRET = "test-secret";
+  });
+
   it("returns payload for valid token payload", () => {
     const strategy = new JwtStrategy();
 

@@ -18,7 +18,7 @@ type EditableTask = {
   dueDate?: string | null;
 };
 
-export function TaskEditForm({ projectId, task }: { projectId: string; task: EditableTask }): JSX.Element {
+export function TaskEditForm({ projectId, task }: { projectId: string; task: EditableTask }) {
   const router = useRouter();
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description ?? "");

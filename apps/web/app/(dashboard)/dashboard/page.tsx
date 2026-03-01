@@ -7,7 +7,7 @@ import { getMyTeams } from "@/actions/team.actions";
 import { SectionSkeleton } from "@/components/layout/section-skeleton";
 import { Card } from "@/components/ui/card";
 
-async function DashboardSummary(): Promise<JSX.Element> {
+async function DashboardSummary() {
   const teamsResult = await getMyTeams();
   const userResult = await getCurrentUser();
 
@@ -64,10 +64,9 @@ async function DashboardSummary(): Promise<JSX.Element> {
   );
 }
 
-export default function DashboardPage(): JSX.Element {
+export default function DashboardPage() {
   return (
     <Suspense fallback={<SectionSkeleton />}>
-      {/* @ts-expect-error Async server component */}
       <DashboardSummary />
     </Suspense>
   );

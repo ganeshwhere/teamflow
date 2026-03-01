@@ -6,7 +6,7 @@ import { inviteMember } from "@/actions/team.actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-export function InviteMemberForm({ teamId }: { teamId: string }): JSX.Element {
+export function InviteMemberForm({ teamId }: { teamId: string }) {
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);

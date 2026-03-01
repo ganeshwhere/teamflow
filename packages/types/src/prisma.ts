@@ -1,11 +1,18 @@
-export type {
-  Priority as PrismaPriority,
-  Project as PrismaProject,
-  ProjectStatus as PrismaProjectStatus,
-  Task as PrismaTask,
-  TaskStatus as PrismaTaskStatus,
-  Team as PrismaTeam,
-  TeamMember as PrismaTeamMember,
-  TeamRole as PrismaTeamRole,
-  User as PrismaUser
-} from "@prisma/client";
+import type { Project } from "./project";
+import type { Task } from "./task";
+import type { Team, TeamMember } from "./team";
+import type { User } from "./user";
+import { ProjectStatus } from "./project";
+import { Priority, TaskStatus } from "./task";
+import { TeamRole } from "./team";
+
+export type PrismaUser = User;
+export type PrismaTeam = Team;
+export type PrismaTeamMember = TeamMember;
+export type PrismaProject = Project;
+export type PrismaTask = Task;
+
+export const PrismaTeamRole = TeamRole;
+export const PrismaProjectStatus = ProjectStatus;
+export const PrismaTaskStatus = TaskStatus;
+export const PrismaPriority = Priority;

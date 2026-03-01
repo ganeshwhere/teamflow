@@ -7,9 +7,10 @@ import { Card } from "@/components/ui/card";
 export default async function ProjectTasksPage({
   params
 }: {
-  params: { teamId: string; projectId: string };
-}): Promise<JSX.Element> {
-  const result = await getTasks(params.projectId);
+  params: Promise<{ teamId: string; projectId: string }>;
+}) {
+  const { teamId, projectId } = await params;
+  const result = await getTasks(projectId);
   const tasks =
     (result.data as Array<{ id: string; title: string; status: string; priority: string; dueDate?: string | null }> | null) ?? [];
 
@@ -18,12 +19,12 @@ export default async function ProjectTasksPage({
       <section className="grid gap-3">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-semibold">All Tasks</h1>
-          <Link href={`/teams/${params.teamId}/projects/${params.projectId}`} className="text-sm text-blue-700 hover:underline">
+          <Link href={`/teams/${teamId}/projects/${projectId}`} className="text-sm text-blue-700 hover:underline">
             Back to project
           </Link>
         </div>
         {tasks.map((task) => (
-          <Link key={task.id} href={`/teams/${params.teamId}/projects/${params.projectId}/tasks/${task.id}`}>
+          <Link key={task.id} href={`/teams/${teamId}/projects/${projectId}/tasks/${task.id}`}>
             <Card className="transition hover:border-blue-300">
               <p className="font-medium">{task.title}</p>
               <p className="text-sm text-slate-600">
@@ -36,7 +37,7 @@ export default async function ProjectTasksPage({
 
       <Card>
         <h2 className="mb-3 text-lg font-semibold">Add Task</h2>
-        <CreateTaskForm projectId={params.projectId} />
+        <CreateTaskForm projectId={projectId} />
       </Card>
     </main>
   );
