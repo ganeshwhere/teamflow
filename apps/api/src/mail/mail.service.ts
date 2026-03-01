@@ -25,10 +25,17 @@ type TaskAssignedPayload = {
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
-  private readonly resend: Resend;
+  private readonly resend: Resend | null;
 
   constructor() {
-    this.resend = new Resend(process.env.RESEND_API_KEY);
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      this.resend = null;
+      this.logger.warn("RESEND_API_KEY is not configured. Email sending is disabled.");
+      return;
+    }
+
+    this.resend = new Resend(apiKey);
   }
 
   async sendTeamInviteEmail(payload: TeamInvitePayload): Promise<void> {
@@ -51,6 +58,10 @@ export class MailService {
     const from = process.env.RESEND_FROM_EMAIL;
     if (!from) {
       this.logger.warn("RESEND_FROM_EMAIL is not configured. Skipping email send.");
+      return;
+    }
+    if (!this.resend) {
+      this.logger.warn("Resend client not configured. Skipping email send.");
       return;
     }
 

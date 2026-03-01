@@ -17,14 +17,17 @@ jest.mock("resend", () => ({
 
 describe("MailService", () => {
   const originalFrom = process.env.RESEND_FROM_EMAIL;
+  const originalApiKey = process.env.RESEND_API_KEY;
 
   beforeEach(() => {
     process.env.RESEND_FROM_EMAIL = "noreply@example.com";
+    process.env.RESEND_API_KEY = "re_test_key";
     jest.clearAllMocks();
   });
 
   afterAll(() => {
     process.env.RESEND_FROM_EMAIL = originalFrom;
+    process.env.RESEND_API_KEY = originalApiKey;
   });
 
   it("sends invite email successfully", async () => {

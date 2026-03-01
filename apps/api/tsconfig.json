@@ -2,6 +2,7 @@
   "extends": "../../packages/config/typescript/nest.json",
   "compilerOptions": {
     "jsx": "react-jsx",
+    "outDir": "./dist",
     "baseUrl": "./",
     "paths": {
       "@repo/types": ["../../packages/types/src"]

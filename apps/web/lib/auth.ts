@@ -59,7 +59,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.image = (token.picture as string | undefined) ?? session.user.image;
       }
 
-      session.apiToken = createApiToken(token);
+      session.apiToken = await createApiToken(token);
       return session;
     }
   },

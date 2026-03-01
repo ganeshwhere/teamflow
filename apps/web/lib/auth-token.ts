@@ -1,20 +1,21 @@
 import type { JWT } from "next-auth/jwt";
-import { sign } from "jsonwebtoken";
+import { SignJWT } from "jose";
 
-export function createApiToken(token: JWT): string {
+export async function createApiToken(token: JWT): Promise<string> {
   const secret = process.env.NEXTAUTH_SECRET ?? "";
-  const expiresIn = (process.env.JWT_EXPIRY ?? "7d") as import("jsonwebtoken").SignOptions["expiresIn"];
+  const secretBytes = new TextEncoder().encode(secret);
+  const expiresIn = process.env.JWT_EXPIRY ?? "7d";
 
-  return sign(
+  return new SignJWT(
     {
       sub: token.userId,
       email: token.email,
       name: token.name,
       provider: token.provider
-    },
-    secret,
-    {
-      expiresIn
     }
-  );
+  )
+    .setProtectedHeader({ alg: "HS256", typ: "JWT" })
+    .setIssuedAt()
+    .setExpirationTime(expiresIn)
+    .sign(secretBytes);
 }
