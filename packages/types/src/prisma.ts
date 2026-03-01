@@ -1,0 +1,11 @@
+export type {
+  Priority as PrismaPriority,
+  Project as PrismaProject,
+  ProjectStatus as PrismaProjectStatus,
+  Task as PrismaTask,
+  TaskStatus as PrismaTaskStatus,
+  Team as PrismaTeam,
+  TeamMember as PrismaTeamMember,
+  TeamRole as PrismaTeamRole,
+  User as PrismaUser
+} from "@prisma/client";
