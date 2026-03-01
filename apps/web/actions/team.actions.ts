@@ -15,6 +15,10 @@ const inviteSchema = z.object({
   teamId: z.string().min(1),
   email: z.string().email()
 });
+const joinTeamSchema = z.object({
+  teamId: z.string().min(1),
+  token: z.string().min(1)
+});
 const removeMemberSchema = z.object({
   teamId: z.string().min(1),
   userId: z.string().min(1)
@@ -55,6 +59,18 @@ export async function inviteMember(teamId: string, email: string): Promise<Actio
     const parsed = inviteSchema.parse({ teamId, email });
     const data = await post<unknown>(`/teams/${parsed.teamId}/invite`, { email: parsed.email });
     revalidatePath(`/teams/${parsed.teamId}`);
+    return ok(data);
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+export async function joinTeam(teamId: string, token: string): Promise<ActionResult<unknown>> {
+  try {
+    const parsed = joinTeamSchema.parse({ teamId, token });
+    const data = await post<unknown>(`/teams/${parsed.teamId}/join`, { token: parsed.token });
+    revalidatePath(`/teams/${parsed.teamId}`);
+    revalidatePath("/teams");
     return ok(data);
   } catch (error) {
     return fail(error);

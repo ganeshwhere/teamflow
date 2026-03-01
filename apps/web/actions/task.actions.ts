@@ -79,6 +79,17 @@ export async function createTask(
   }
 }
 
+export async function getTask(projectId: string, taskId: string): Promise<ActionResult<unknown>> {
+  try {
+    const parsedProjectId = z.string().min(1).parse(projectId);
+    const parsedTaskId = z.string().min(1).parse(taskId);
+    const data = await get<unknown>(`/projects/${parsedProjectId}/tasks/${parsedTaskId}`);
+    return ok(data);
+  } catch (error) {
+    return fail(error);
+  }
+}
+
 export async function updateTask(
   projectId: string,
   taskId: string,
