@@ -1,0 +1,13 @@
+{
+  "name": "@repo/config",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./typescript/base": "./typescript/base.json",
+    "./typescript/nextjs": "./typescript/nextjs.json",
+    "./typescript/nest": "./typescript/nest.json",
+    "./eslint/base": "./eslint/base.cjs",
+    "./tailwind/base": "./tailwind/base.ts"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "extends": "../../packages/config/typescript/nest.json",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@repo/types": ["../../packages/types/src"]
+    }
+  },
+  "include": ["src", "test", "prisma"]
+}
