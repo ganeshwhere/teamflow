@@ -9,13 +9,17 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@auth/core": "^0.37.2",
     "next": "^15.0.0",
+    "next-auth": "^5.0.0-beta.25",
+    "jsonwebtoken": "^9.0.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "@repo/types": "workspace:*",
     "@repo/ui": "workspace:*"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.7.5",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
