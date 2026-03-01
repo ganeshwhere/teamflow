@@ -1,6 +1,9 @@
 import NextAuth from "next-auth";
 import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
+
+import type { VerifyTokenResponse } from "@repo/types";
+
 import { createApiToken } from "./auth-token";
 import { buildVerifyTokenPayload } from "./auth-helpers";
 
@@ -42,7 +45,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         });
 
         if (response.ok) {
-          const payload = (await response.json()) as { userId: string };
+          const payload = (await response.json()) as VerifyTokenResponse;
           token.userId = payload.userId;
           token.sub = payload.userId;
           token.provider = verifyPayload.provider;

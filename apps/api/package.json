@@ -16,6 +16,7 @@
     "test:cov": "jest --coverage"
   },
   "dependencies": {
+    "@repo/types": "workspace:*",
     "@react-email/components": "^0.0.28",
     "@react-email/render": "^1.0.1",
     "@nestjs/common": "^10.4.5",

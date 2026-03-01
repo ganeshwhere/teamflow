@@ -3,15 +3,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./*"
-      ],
-      "@repo/types": [
-        "../../packages/types/src"
-      ],
-      "@repo/ui": [
-        "../../packages/ui/src"
-      ]
+      "@/*": ["./*"]
     },
     "allowJs": true
   },

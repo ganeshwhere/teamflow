@@ -1,5 +1,5 @@
 import { Body, Controller, Post } from "@nestjs/common";
-import type { User } from "@prisma/client";
+import type { VerifyTokenResponse } from "@repo/types";
 
 import { Public } from "./decorators/public.decorator";
 import { VerifyTokenDto } from "./dto/verify-token.dto";
@@ -11,7 +11,7 @@ export class AuthController {
 
   @Public()
   @Post("verify-token")
-  async verifyToken(@Body() dto: VerifyTokenDto): Promise<{ userId: string; user: User }> {
+  async verifyToken(@Body() dto: VerifyTokenDto): Promise<VerifyTokenResponse> {
     const user = await this.authService.validateOrCreateUser(dto);
 
     return {

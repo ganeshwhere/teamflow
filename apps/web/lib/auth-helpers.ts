@@ -1,12 +1,5 @@
 import type { Account, Profile, User } from "next-auth";
-
-export type VerifyTokenPayload = {
-  email: string;
-  name?: string | null;
-  avatarUrl?: string | null;
-  provider: string;
-  providerId: string;
-};
+import type { VerifyTokenPayload } from "@repo/types";
 
 export function buildVerifyTokenPayload(args: {
   account?: Account | null;

@@ -1,6 +1,7 @@
 import { IsEmail, IsOptional, IsString, MinLength } from "class-validator";
+import type { VerifyTokenPayload } from "@repo/types";
 
-export class VerifyTokenDto {
+export class VerifyTokenDto implements VerifyTokenPayload {
   @IsEmail()
   email!: string;
 
