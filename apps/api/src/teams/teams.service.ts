@@ -5,7 +5,8 @@ import {
   NotFoundException
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { TeamRole, type Team, type TeamMember } from "@prisma/client";
+import { TeamRole, type Team } from "@prisma/client";
+import type { TeamDetail, TeamListItem } from "@repo/types";
 
 import type { AuthUser } from "../auth/interfaces/auth-user.interface";
 import { MailService } from "../mail/mail.service";
@@ -23,13 +24,33 @@ export class TeamsService {
     private readonly mailService: MailService
   ) {}
 
-  async getMyTeams(userId: string): Promise<Team[]> {
+  async getMyTeams(userId: string): Promise<TeamListItem[]> {
     const memberships = await this.prisma.teamMember.findMany({
       where: { userId },
-      include: { team: true }
+      include: {
+        team: {
+          include: {
+            _count: {
+              select: {
+                members: true,
+                projects: true
+              }
+            }
+          }
+        }
+      }
     });
 
-    return memberships.map((membership) => membership.team);
+    return memberships.map(({ team }) => ({
+      id: team.id,
+      name: team.name,
+      slug: team.slug,
+      description: team.description,
+      createdAt: team.createdAt,
+      ownerId: team.ownerId,
+      memberCount: team._count.members,
+      projectCount: team._count.projects
+    }));
   }
 
   async createTeam(dto: CreateTeamDto, user: AuthUser): Promise<Team> {
@@ -53,7 +74,7 @@ export class TeamsService {
     return created;
   }
 
-  async getTeam(teamId: string): Promise<Team & { members: (TeamMember & { user: { id: string; email: string; name: string | null } })[] }> {
+  async getTeam(teamId: string): Promise<TeamDetail> {
     const team = await this.prisma.team.findUnique({
       where: { id: teamId },
       include: {
@@ -63,7 +84,8 @@ export class TeamsService {
               select: {
                 id: true,
                 email: true,
-                name: true
+                name: true,
+                avatarUrl: true
               }
             }
           }
@@ -75,7 +97,15 @@ export class TeamsService {
       throw new NotFoundException("Team not found");
     }
 
-    return team;
+    return {
+      id: team.id,
+      name: team.name,
+      slug: team.slug,
+      description: team.description,
+      createdAt: team.createdAt,
+      ownerId: team.ownerId,
+      members: team.members
+    };
   }
 
   async updateTeam(teamId: string, dto: UpdateTeamDto): Promise<Team> {

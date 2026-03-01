@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import type { ActionResult } from "@repo/types";
+import type { ActionResult, InviteResult, JoinResult, RemoveResult, Team, TeamDetail, TeamListItem } from "@repo/types";
 
 import { del, get, post } from "@/lib/api-client";
 
@@ -24,29 +24,29 @@ const removeMemberSchema = z.object({
   userId: z.string().min(1)
 });
 
-export async function getMyTeams(): Promise<ActionResult<unknown[]>> {
+export async function getMyTeams(): Promise<ActionResult<TeamListItem[]>> {
   try {
-    const data = await get<unknown[]>("/teams");
+    const data = await get<TeamListItem[]>("/teams");
     return ok(data);
   } catch (error) {
     return fail(error);
   }
 }
 
-export async function getTeam(teamId: string): Promise<ActionResult<unknown>> {
+export async function getTeam(teamId: string): Promise<ActionResult<TeamDetail>> {
   try {
     const parsed = teamIdSchema.parse(teamId);
-    const data = await get<unknown>(`/teams/${parsed}`);
+    const data = await get<TeamDetail>(`/teams/${parsed}`);
     return ok(data);
   } catch (error) {
     return fail(error);
   }
 }
 
-export async function createTeam(formData: { name: string; description?: string }): Promise<ActionResult<unknown>> {
+export async function createTeam(formData: { name: string; description?: string }): Promise<ActionResult<Team>> {
   try {
     const parsed = createTeamInputSchema.parse(formData);
-    const data = await post<unknown>("/teams", parsed);
+    const data = await post<Team>("/teams", parsed);
     revalidatePath("/teams");
     return ok(data);
   } catch (error) {
@@ -54,10 +54,10 @@ export async function createTeam(formData: { name: string; description?: string 
   }
 }
 
-export async function inviteMember(teamId: string, email: string): Promise<ActionResult<unknown>> {
+export async function inviteMember(teamId: string, email: string): Promise<ActionResult<InviteResult>> {
   try {
     const parsed = inviteSchema.parse({ teamId, email });
-    const data = await post<unknown>(`/teams/${parsed.teamId}/invite`, { email: parsed.email });
+    const data = await post<InviteResult>(`/teams/${parsed.teamId}/invite`, { email: parsed.email });
     revalidatePath(`/teams/${parsed.teamId}`);
     return ok(data);
   } catch (error) {
@@ -65,10 +65,10 @@ export async function inviteMember(teamId: string, email: string): Promise<Actio
   }
 }
 
-export async function joinTeam(teamId: string, token: string): Promise<ActionResult<unknown>> {
+export async function joinTeam(teamId: string, token: string): Promise<ActionResult<JoinResult>> {
   try {
     const parsed = joinTeamSchema.parse({ teamId, token });
-    const data = await post<unknown>(`/teams/${parsed.teamId}/join`, { token: parsed.token });
+    const data = await post<JoinResult>(`/teams/${parsed.teamId}/join`, { token: parsed.token });
     revalidatePath(`/teams/${parsed.teamId}`);
     revalidatePath("/teams");
     return ok(data);
@@ -77,10 +77,10 @@ export async function joinTeam(teamId: string, token: string): Promise<ActionRes
   }
 }
 
-export async function removeMember(teamId: string, userId: string): Promise<ActionResult<unknown>> {
+export async function removeMember(teamId: string, userId: string): Promise<ActionResult<RemoveResult>> {
   try {
     const parsed = removeMemberSchema.parse({ teamId, userId });
-    const data = await del<unknown>(`/teams/${parsed.teamId}/members/${parsed.userId}`);
+    const data = await del<RemoveResult>(`/teams/${parsed.teamId}/members/${parsed.userId}`);
     revalidatePath(`/teams/${parsed.teamId}`);
     return ok(data);
   } catch (error) {

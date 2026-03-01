@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { type Task } from "@prisma/client";
+import type { TaskDetail, TaskItem } from "@repo/types";
 
 import type { AuthUser } from "../auth/interfaces/auth-user.interface";
 import { MailService } from "../mail/mail.service";
@@ -16,7 +16,7 @@ export class TasksService {
     private readonly mailService: MailService
   ) {}
 
-  async listTasks(projectId: string, query: ListTasksQueryDto): Promise<Task[]> {
+  async listTasks(projectId: string, query: ListTasksQueryDto): Promise<TaskItem[]> {
     return this.prisma.task.findMany({
       where: {
         projectId,
@@ -24,11 +24,21 @@ export class TasksService {
         priority: query.priority,
         assigneeId: query.assigneeId
       },
+      include: {
+        assignee: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            avatarUrl: true
+          }
+        }
+      },
       orderBy: [{ status: "asc" }, { createdAt: "desc" }]
     });
   }
 
-  async createTask(projectId: string, dto: CreateTaskDto, user: AuthUser): Promise<Task> {
+  async createTask(projectId: string, dto: CreateTaskDto, user: AuthUser): Promise<TaskItem> {
     return this.prisma.task.create({
       data: {
         projectId,
@@ -38,15 +48,43 @@ export class TasksService {
         description: dto.description,
         priority: dto.priority,
         dueDate: dto.dueDate ? new Date(dto.dueDate) : undefined
+      },
+      include: {
+        assignee: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            avatarUrl: true
+          }
+        }
       }
     });
   }
 
-  async getTask(projectId: string, taskId: string): Promise<Task> {
+  async getTask(projectId: string, taskId: string): Promise<TaskDetail> {
     const task = await this.prisma.task.findFirst({
       where: {
         id: taskId,
         projectId
+      },
+      include: {
+        assignee: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            avatarUrl: true
+          }
+        },
+        creator: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            avatarUrl: true
+          }
+        }
       }
     });
 
@@ -57,8 +95,9 @@ export class TasksService {
     return task;
   }
 
-  async updateTask(projectId: string, taskId: string, dto: UpdateTaskDto): Promise<Task> {
+  async updateTask(projectId: string, taskId: string, dto: UpdateTaskDto): Promise<TaskDetail> {
     const existingTask = await this.getTask(projectId, taskId);
+    const normalizedAssigneeId = dto.assigneeId === "" ? null : dto.assigneeId;
 
     const updatedTask = await this.prisma.task.update({
       where: { id: taskId },
@@ -67,11 +106,26 @@ export class TasksService {
         description: dto.description,
         status: dto.status,
         priority: dto.priority,
-        assigneeId: dto.assigneeId,
+        assigneeId: normalizedAssigneeId,
         dueDate: dto.dueDate ? new Date(dto.dueDate) : dto.dueDate === undefined ? undefined : null
       },
       include: {
-        assignee: true,
+        assignee: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            avatarUrl: true
+          }
+        },
+        creator: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            avatarUrl: true
+          }
+        },
         project: {
           include: {
             team: true
@@ -80,7 +134,7 @@ export class TasksService {
       }
     });
 
-    const assigneeChanged = dto.assigneeId !== undefined && dto.assigneeId !== existingTask.assigneeId;
+    const assigneeChanged = dto.assigneeId !== undefined && normalizedAssigneeId !== existingTask.assigneeId;
     if (assigneeChanged && updatedTask.assignee?.email) {
       try {
         await this.mailService.sendTaskAssignedEmail({
@@ -97,7 +151,8 @@ export class TasksService {
       }
     }
 
-    return updatedTask;
+    const { project, ...task } = updatedTask;
+    return task;
   }
 
   async deleteTask(projectId: string, taskId: string): Promise<{ deleted: boolean }> {

@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { ProjectStatus, TaskStatus, type Project } from "@prisma/client";
+import type { DeleteResult, ProjectItem, ProjectWithStatsResponse } from "@repo/types";
 
 import { PrismaService } from "../prisma/prisma.service";
 
@@ -10,14 +11,14 @@ import type { UpdateProjectDto } from "./dto/update-project.dto";
 export class ProjectsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async listProjects(teamId: string): Promise<Project[]> {
+  async listProjects(teamId: string): Promise<ProjectItem[]> {
     return this.prisma.project.findMany({
       where: { teamId },
       orderBy: { createdAt: "desc" }
     });
   }
 
-  async createProject(teamId: string, dto: CreateProjectDto): Promise<Project> {
+  async createProject(teamId: string, dto: CreateProjectDto): Promise<ProjectItem> {
     return this.prisma.project.create({
       data: {
         teamId,
@@ -27,7 +28,7 @@ export class ProjectsService {
     });
   }
 
-  async getProject(teamId: string, projectId: string): Promise<Project> {
+  async getProject(teamId: string, projectId: string): Promise<ProjectItem> {
     const project = await this.prisma.project.findFirst({
       where: {
         id: projectId,
@@ -42,7 +43,7 @@ export class ProjectsService {
     return project;
   }
 
-  async updateProject(teamId: string, projectId: string, dto: UpdateProjectDto): Promise<Project> {
+  async updateProject(teamId: string, projectId: string, dto: UpdateProjectDto): Promise<ProjectItem> {
     await this.getProject(teamId, projectId);
 
     return this.prisma.project.update({
@@ -54,16 +55,13 @@ export class ProjectsService {
     });
   }
 
-  async deleteProject(teamId: string, projectId: string): Promise<{ deleted: boolean }> {
+  async deleteProject(teamId: string, projectId: string): Promise<DeleteResult> {
     await this.getProject(teamId, projectId);
     await this.prisma.project.delete({ where: { id: projectId } });
     return { deleted: true };
   }
 
-  async getProjectWithStats(teamId: string, projectId: string): Promise<{
-    project: Project;
-    taskCounts: Record<TaskStatus, number>;
-  }> {
+  async getProjectWithStats(teamId: string, projectId: string): Promise<ProjectWithStatsResponse> {
     const project = await this.getProject(teamId, projectId);
 
     const grouped = await this.prisma.task.groupBy({

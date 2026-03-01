@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-export function CreateTeamForm() {
+export function CreateTeamForm({ onSuccess }: { onSuccess?: () => void } = {}) {
   const router = useRouter();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -31,6 +31,7 @@ export function CreateTeamForm() {
 
           setName("");
           setDescription("");
+          onSuccess?.();
           router.refresh();
         });
       }}

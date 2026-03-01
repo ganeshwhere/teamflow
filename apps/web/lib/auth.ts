@@ -2,10 +2,9 @@ import NextAuth from "next-auth";
 import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
 
-import type { VerifyTokenResponse } from "@repo/types";
-
 import { createApiToken } from "./auth-token";
 import { buildVerifyTokenPayload } from "./auth-helpers";
+import { upsertOAuthUser } from "./auth-callback";
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
@@ -36,16 +35,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         existingProvider: token.provider as string | undefined
       });
       if (verifyPayload) {
-        const response = await fetch(`${apiBaseUrl}/auth/verify-token`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(verifyPayload)
+        const payload = await upsertOAuthUser({
+          apiBaseUrl,
+          payload: verifyPayload
         });
 
-        if (response.ok) {
-          const payload = (await response.json()) as VerifyTokenResponse;
+        if (payload) {
           token.userId = payload.userId;
           token.sub = payload.userId;
           token.provider = verifyPayload.provider;

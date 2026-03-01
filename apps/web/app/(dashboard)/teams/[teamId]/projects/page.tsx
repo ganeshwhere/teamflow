@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ProjectItem } from "@repo/types";
 
 import { getProjects } from "@/actions/project.actions";
 import { Card } from "@/components/ui/card";
@@ -10,7 +11,7 @@ export default async function TeamProjectsPage({
 }) {
   const { teamId } = await params;
   const result = await getProjects(teamId);
-  const projects = (result.data as Array<{ id: string; name: string; description?: string | null }> | null) ?? [];
+  const projects: ProjectItem[] = result.data ?? [];
 
   return (
     <main className="grid gap-4">

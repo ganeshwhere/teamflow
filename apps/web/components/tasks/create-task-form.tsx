@@ -8,13 +8,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import type { UserSummary } from "@repo/types";
 
-export function CreateTaskForm({ projectId }: { projectId: string }) {
+export function CreateTaskForm({
+  projectId,
+  assignees = [],
+  onSuccess
+}: {
+  projectId: string;
+  assignees?: UserSummary[];
+  onSuccess?: () => void;
+}) {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<"LOW" | "MEDIUM" | "HIGH" | "URGENT">("MEDIUM");
   const [dueDate, setDueDate] = useState("");
+  const [assigneeId, setAssigneeId] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -30,7 +40,8 @@ export function CreateTaskForm({ projectId }: { projectId: string }) {
             title,
             description: description || undefined,
             priority,
-            dueDate: dueDate || undefined
+            dueDate: dueDate || undefined,
+            assigneeId: assigneeId || undefined
           });
 
           if (result.error) {
@@ -41,7 +52,9 @@ export function CreateTaskForm({ projectId }: { projectId: string }) {
           setTitle("");
           setDescription("");
           setDueDate("");
+          setAssigneeId("");
           setPriority("MEDIUM");
+          onSuccess?.();
           router.refresh();
         });
       }}
@@ -57,6 +70,14 @@ export function CreateTaskForm({ projectId }: { projectId: string }) {
         <option value="MEDIUM">MEDIUM</option>
         <option value="HIGH">HIGH</option>
         <option value="URGENT">URGENT</option>
+      </Select>
+      <Select value={assigneeId} onChange={(event) => setAssigneeId(event.target.value)}>
+        <option value="">Unassigned</option>
+        {assignees.map((member) => (
+          <option key={member.id} value={member.id}>
+            {member.name ?? member.email}
+          </option>
+        ))}
       </Select>
       <Input type="date" value={dueDate} onChange={(event) => setDueDate(event.target.value)} />
       {error ? <p className="text-sm text-red-600">{error}</p> : null}

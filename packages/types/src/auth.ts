@@ -16,6 +16,6 @@ export interface VerifyTokenResponse {
 export interface ApiJwtPayload {
   sub: string;
   email: string;
-  name: string;
+  name?: string | null;
   provider: string;
 }

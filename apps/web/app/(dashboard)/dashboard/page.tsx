@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import type { ProjectItem, TaskItem, TaskStatusValue, TeamListItem, User } from "@repo/types";
 
 import { getCurrentUser } from "@/actions/user.actions";
 import { getProjects } from "@/actions/project.actions";
@@ -11,8 +12,8 @@ async function DashboardSummary() {
   const teamsResult = await getMyTeams();
   const userResult = await getCurrentUser();
 
-  const teams = (teamsResult.data as Array<{ id: string; name: string }> | null) ?? [];
-  const user = (userResult.data as { id: string; name?: string | null } | null) ?? null;
+  const teams: TeamListItem[] = teamsResult.data ?? [];
+  const user: User | null = userResult.data;
 
   let totalProjects = 0;
   const taskByStatus = {
@@ -24,16 +25,15 @@ async function DashboardSummary() {
 
   for (const team of teams) {
     const projectsResult = await getProjects(team.id);
-    const projects = (projectsResult.data as Array<{ id: string }> | null) ?? [];
+    const projects: ProjectItem[] = projectsResult.data ?? [];
     totalProjects += projects.length;
 
     for (const project of projects) {
-      const tasksResult = await getTasks(project.id, { assigneeId: user?.id });
-      const tasks =
-        (tasksResult.data as Array<{ status: "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE" }> | null) ?? [];
+      const tasksResult = await getTasks(project.id, user?.id ? { assigneeId: user.id } : undefined);
+      const tasks: TaskItem[] = tasksResult.data ?? [];
 
       for (const task of tasks) {
-        taskByStatus[task.status] += 1;
+        taskByStatus[task.status as TaskStatusValue] += 1;
       }
     }
   }

@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import type { ProjectWithStatsResponse, TaskItem, UserSummary } from "@repo/types";
 
 import { getProject } from "@/actions/project.actions";
 import { getTasks } from "@/actions/task.actions";
+import { getTeam } from "@/actions/team.actions";
 import { SectionSkeleton } from "@/components/layout/section-skeleton";
-import { CreateTaskForm } from "@/components/tasks/create-task-form";
+import { CreateTaskPanel } from "@/components/tasks/create-task-panel";
 import { TaskBoard } from "@/components/tasks/task-board";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -18,20 +20,11 @@ async function ProjectOverview({
 }) {
   const projectResult = await getProject(teamId, projectId);
   const tasksResult = await getTasks(projectId);
+  const teamResult = await getTeam(teamId);
 
-  const payload =
-    (projectResult.data as {
-      project: { id: string; name: string; status?: string; description?: string | null };
-      taskCounts?: Record<string, number>;
-    } | null) ?? null;
-  const tasks =
-    (tasksResult.data as Array<{
-      id: string;
-      title: string;
-      status: "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE";
-      priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
-      dueDate?: string | null;
-    }> | null) ?? [];
+  const payload: ProjectWithStatsResponse | null = projectResult.data;
+  const tasks: TaskItem[] = tasksResult.data ?? [];
+  const assignees: UserSummary[] = (teamResult.data?.members ?? []).map((member) => member.user);
 
   if (!payload?.project) {
     return (
@@ -63,12 +56,12 @@ async function ProjectOverview({
         <TaskBoard tasks={tasks} basePath={`/teams/${teamId}/projects/${projectId}`} />
         <Card>
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Add Task</h2>
+            <h2 className="text-lg font-semibold">Task Actions</h2>
             <Link href={`/teams/${teamId}/projects/${projectId}/tasks`} className="text-xs text-blue-700 hover:underline">
               All tasks
             </Link>
           </div>
-          <CreateTaskForm projectId={projectId} />
+          <CreateTaskPanel projectId={projectId} assignees={assignees} />
         </Card>
       </div>
     </div>

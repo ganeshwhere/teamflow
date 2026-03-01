@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import type { ActionResult } from "@repo/types";
+import type { ActionResult, DeleteResult, PriorityValue, TaskDetail, TaskItem, TaskStatusValue } from "@repo/types";
 
 import { del, get, patch, post } from "@/lib/api-client";
 
@@ -34,11 +34,11 @@ const taskFilterSchema = z
 export async function getTasks(
   projectId: string,
   filters?: {
-    status?: "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE";
-    priority?: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+    status?: TaskStatusValue;
+    priority?: PriorityValue;
     assigneeId?: string;
   }
-): Promise<ActionResult<unknown[]>> {
+): Promise<ActionResult<TaskItem[]>> {
   try {
     const parsedProjectId = z.string().min(1).parse(projectId);
     const parsedFilters = taskFilterSchema.parse(filters);
@@ -48,7 +48,7 @@ export async function getTasks(
     if (parsedFilters?.priority) query.set("priority", parsedFilters.priority);
     if (parsedFilters?.assigneeId) query.set("assigneeId", parsedFilters.assigneeId);
 
-    const data = await get<unknown[]>(
+    const data = await get<TaskItem[]>(
       `/projects/${parsedProjectId}/tasks${query.toString() ? `?${query.toString()}` : ""}`
     );
 
@@ -63,15 +63,15 @@ export async function createTask(
   formData: {
     title: string;
     description?: string;
-    priority?: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+    priority?: PriorityValue;
     dueDate?: string;
     assigneeId?: string;
   }
-): Promise<ActionResult<unknown>> {
+): Promise<ActionResult<TaskItem>> {
   try {
     const parsedProjectId = z.string().min(1).parse(projectId);
     const parsedData = taskInputSchema.parse(formData);
-    const data = await post<unknown>(`/projects/${parsedProjectId}/tasks`, parsedData);
+    const data = await post<TaskItem>(`/projects/${parsedProjectId}/tasks`, parsedData);
     revalidatePath(`/teams`);
     return ok(data);
   } catch (error) {
@@ -79,11 +79,11 @@ export async function createTask(
   }
 }
 
-export async function getTask(projectId: string, taskId: string): Promise<ActionResult<unknown>> {
+export async function getTask(projectId: string, taskId: string): Promise<ActionResult<TaskDetail>> {
   try {
     const parsedProjectId = z.string().min(1).parse(projectId);
     const parsedTaskId = z.string().min(1).parse(taskId);
-    const data = await get<unknown>(`/projects/${parsedProjectId}/tasks/${parsedTaskId}`);
+    const data = await get<TaskDetail>(`/projects/${parsedProjectId}/tasks/${parsedTaskId}`);
     return ok(data);
   } catch (error) {
     return fail(error);
@@ -96,17 +96,17 @@ export async function updateTask(
   data: {
     title?: string;
     description?: string;
-    priority?: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+    priority?: PriorityValue;
     dueDate?: string;
     assigneeId?: string;
-    status?: "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE";
+    status?: TaskStatusValue;
   }
-): Promise<ActionResult<unknown>> {
+): Promise<ActionResult<TaskDetail>> {
   try {
     const parsedProjectId = z.string().min(1).parse(projectId);
     const parsedTaskId = z.string().min(1).parse(taskId);
     const parsedData = taskUpdateSchema.parse(data);
-    const updated = await patch<unknown>(`/projects/${parsedProjectId}/tasks/${parsedTaskId}`, parsedData);
+    const updated = await patch<TaskDetail>(`/projects/${parsedProjectId}/tasks/${parsedTaskId}`, parsedData);
     revalidatePath(`/teams`);
     return ok(updated);
   } catch (error) {
@@ -117,20 +117,24 @@ export async function updateTask(
 export async function updateTaskStatus(
   projectId: string,
   taskId: string,
-  status: "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE"
-): Promise<ActionResult<unknown>> {
+  status: TaskStatusValue
+): Promise<ActionResult<TaskDetail>> {
   return updateTask(projectId, taskId, { status });
 }
 
-export async function assignTask(projectId: string, taskId: string, assigneeId: string): Promise<ActionResult<unknown>> {
+export async function assignTask(
+  projectId: string,
+  taskId: string,
+  assigneeId: string
+): Promise<ActionResult<TaskDetail>> {
   return updateTask(projectId, taskId, { assigneeId });
 }
 
-export async function deleteTask(projectId: string, taskId: string): Promise<ActionResult<unknown>> {
+export async function deleteTask(projectId: string, taskId: string): Promise<ActionResult<DeleteResult>> {
   try {
     const parsedProjectId = z.string().min(1).parse(projectId);
     const parsedTaskId = z.string().min(1).parse(taskId);
-    const data = await del<unknown>(`/projects/${parsedProjectId}/tasks/${parsedTaskId}`);
+    const data = await del<DeleteResult>(`/projects/${parsedProjectId}/tasks/${parsedTaskId}`);
     revalidatePath(`/teams`);
     return ok(data);
   } catch (error) {

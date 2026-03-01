@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { TaskItem } from "@repo/types";
 
 import { getTasks } from "@/actions/task.actions";
 import { CreateTaskForm } from "@/components/tasks/create-task-form";
@@ -11,8 +12,7 @@ export default async function ProjectTasksPage({
 }) {
   const { teamId, projectId } = await params;
   const result = await getTasks(projectId);
-  const tasks =
-    (result.data as Array<{ id: string; title: string; status: string; priority: string; dueDate?: string | null }> | null) ?? [];
+  const tasks: TaskItem[] = result.data ?? [];
 
   return (
     <main className="grid gap-4 lg:grid-cols-[2fr_1fr]">

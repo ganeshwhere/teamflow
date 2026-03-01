@@ -1,8 +1,6 @@
-export type AuthUser = {
-  sub: string;
-  email: string;
-  name?: string;
-  provider: string;
+import type { ApiJwtPayload } from "@repo/types";
+
+export type AuthUser = ApiJwtPayload & {
   providerId?: string;
   picture?: string;
 };

@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import type { ActionResult } from "@repo/types";
+import type { ActionResult, DeleteResult, ProjectItem, ProjectWithStatsResponse } from "@repo/types";
 
 import { del, get, patch, post } from "@/lib/api-client";
 
@@ -16,32 +16,35 @@ const projectInputSchema = z.object({
 });
 const updateProjectSchema = projectInputSchema.partial();
 
-export async function getProjects(teamId: string): Promise<ActionResult<unknown[]>> {
+export async function getProjects(teamId: string): Promise<ActionResult<ProjectItem[]>> {
   try {
     const parsedTeamId = teamIdSchema.parse(teamId);
-    const data = await get<unknown[]>(`/teams/${parsedTeamId}/projects`);
+    const data = await get<ProjectItem[]>(`/teams/${parsedTeamId}/projects`);
     return ok(data);
   } catch (error) {
     return fail(error);
   }
 }
 
-export async function getProject(teamId: string, projectId: string): Promise<ActionResult<unknown>> {
+export async function getProject(teamId: string, projectId: string): Promise<ActionResult<ProjectWithStatsResponse>> {
   try {
     const parsedTeamId = teamIdSchema.parse(teamId);
     const parsedProjectId = z.string().min(1).parse(projectId);
-    const data = await get<unknown>(`/teams/${parsedTeamId}/projects/${parsedProjectId}`);
+    const data = await get<ProjectWithStatsResponse>(`/teams/${parsedTeamId}/projects/${parsedProjectId}`);
     return ok(data);
   } catch (error) {
     return fail(error);
   }
 }
 
-export async function createProject(teamId: string, formData: { name: string; description?: string }): Promise<ActionResult<unknown>> {
+export async function createProject(
+  teamId: string,
+  formData: { name: string; description?: string }
+): Promise<ActionResult<ProjectItem>> {
   try {
     const parsedTeamId = teamIdSchema.parse(teamId);
     const parsedData = projectInputSchema.parse(formData);
-    const data = await post<unknown>(`/teams/${parsedTeamId}/projects`, parsedData);
+    const data = await post<ProjectItem>(`/teams/${parsedTeamId}/projects`, parsedData);
     revalidatePath(`/teams/${parsedTeamId}`);
     return ok(data);
   } catch (error) {
@@ -53,12 +56,12 @@ export async function updateProject(
   teamId: string,
   projectId: string,
   data: { name?: string; description?: string }
-): Promise<ActionResult<unknown>> {
+): Promise<ActionResult<ProjectItem>> {
   try {
     const parsedTeamId = teamIdSchema.parse(teamId);
     const parsedProjectId = z.string().min(1).parse(projectId);
     const parsedData = updateProjectSchema.parse(data);
-    const updated = await patch<unknown>(`/teams/${parsedTeamId}/projects/${parsedProjectId}`, parsedData);
+    const updated = await patch<ProjectItem>(`/teams/${parsedTeamId}/projects/${parsedProjectId}`, parsedData);
     revalidatePath(`/teams/${parsedTeamId}/projects/${parsedProjectId}`);
     return ok(updated);
   } catch (error) {
@@ -66,11 +69,11 @@ export async function updateProject(
   }
 }
 
-export async function deleteProject(teamId: string, projectId: string): Promise<ActionResult<unknown>> {
+export async function deleteProject(teamId: string, projectId: string): Promise<ActionResult<DeleteResult>> {
   try {
     const parsedTeamId = teamIdSchema.parse(teamId);
     const parsedProjectId = z.string().min(1).parse(projectId);
-    const result = await del<unknown>(`/teams/${parsedTeamId}/projects/${parsedProjectId}`);
+    const result = await del<DeleteResult>(`/teams/${parsedTeamId}/projects/${parsedProjectId}`);
     revalidatePath(`/teams/${parsedTeamId}`);
     return ok(result);
   } catch (error) {

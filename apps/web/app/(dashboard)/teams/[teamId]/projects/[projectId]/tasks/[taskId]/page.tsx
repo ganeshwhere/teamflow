@@ -1,6 +1,8 @@
 import Link from "next/link";
+import type { TaskDetail, UserSummary } from "@repo/types";
 
 import { getTask } from "@/actions/task.actions";
+import { getTeam } from "@/actions/team.actions";
 import { TaskEditForm } from "@/components/tasks/task-edit-form";
 import { Card } from "@/components/ui/card";
 
@@ -11,15 +13,9 @@ export default async function TaskDetailPage({
 }) {
   const { teamId, projectId, taskId } = await params;
   const result = await getTask(projectId, taskId);
-  const task =
-    (result.data as {
-      id: string;
-      title: string;
-      description?: string | null;
-      status: "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE";
-      priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
-      dueDate?: string | null;
-    } | null) ?? null;
+  const teamResult = await getTeam(teamId);
+  const task: TaskDetail | null = result.data;
+  const assignees: UserSummary[] = (teamResult.data?.members ?? []).map((member) => member.user);
 
   if (!task) {
     return (
@@ -36,7 +32,7 @@ export default async function TaskDetailPage({
       </Link>
       <Card>
         <h1 className="mb-3 text-xl font-semibold">Task Details</h1>
-        <TaskEditForm projectId={projectId} task={task} />
+        <TaskEditForm projectId={projectId} task={task} assignees={assignees} />
       </Card>
     </main>
   );

@@ -1,5 +1,6 @@
 export * from "./api";
 export * from "./auth";
+export * from "./contracts";
 export * from "./project";
 export * from "./prisma";
 export * from "./task";

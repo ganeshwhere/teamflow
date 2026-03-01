@@ -3,7 +3,13 @@ export type TaskBoardItem = {
   title: string;
   status: "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE";
   priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
-  dueDate?: string | null;
+  dueDate?: string | Date | null;
+  assignee?: {
+    id: string;
+    name?: string | null;
+    email: string;
+    avatarUrl?: string | null;
+  } | null;
 };
 
 export const taskStatuses: TaskBoardItem["status"][] = ["TODO", "IN_PROGRESS", "IN_REVIEW", "DONE"];

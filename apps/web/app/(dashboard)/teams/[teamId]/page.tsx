@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import type { ProjectItem, TeamDetail } from "@repo/types";
 
 import { getProjects } from "@/actions/project.actions";
 import { getTeam } from "@/actions/team.actions";
 import { SectionSkeleton } from "@/components/layout/section-skeleton";
-import { CreateProjectForm } from "@/components/projects/create-project-form";
-import { InviteMemberForm } from "@/components/teams/invite-member-form";
+import { InviteMemberDialog } from "@/components/teams/invite-member-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 
@@ -13,14 +13,8 @@ async function TeamOverview({ teamId }: { teamId: string }) {
   const teamResult = await getTeam(teamId);
   const projectsResult = await getProjects(teamId);
 
-  const team =
-    (teamResult.data as {
-      id: string;
-      name: string;
-      description?: string | null;
-      members?: Array<{ id: string; role: string; user: { id: string; email: string; name?: string | null } }>;
-    } | null) ?? null;
-  const projects = (projectsResult.data as Array<{ id: string; name: string; status?: string }> | null) ?? [];
+  const team: TeamDetail | null = teamResult.data;
+  const projects: ProjectItem[] = projectsResult.data ?? [];
 
   if (!team) {
     return (
@@ -52,17 +46,22 @@ async function TeamOverview({ teamId }: { teamId: string }) {
 
         <Card>
           <h2 className="mb-2 text-lg font-semibold">Invite Member</h2>
-          <InviteMemberForm teamId={teamId} />
+          <InviteMemberDialog teamId={teamId} />
         </Card>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
+      <div className="grid gap-4">
         <Card>
           <div className="mb-2 flex items-center justify-between">
             <h2 className="text-lg font-semibold">Projects</h2>
-            <Link href={`/teams/${teamId}/projects`} className="text-sm text-blue-700 hover:underline">
-              View all
-            </Link>
+            <div className="flex items-center gap-3">
+              <Link href={`/teams/${teamId}/projects/new`} className="text-sm text-blue-700 hover:underline">
+                Create project
+              </Link>
+              <Link href={`/teams/${teamId}/projects`} className="text-sm text-blue-700 hover:underline">
+                View all
+              </Link>
+            </div>
           </div>
           <div className="grid gap-2">
             {projects.map((project) => (
@@ -74,11 +73,6 @@ async function TeamOverview({ teamId }: { teamId: string }) {
               </Link>
             ))}
           </div>
-        </Card>
-
-        <Card>
-          <h2 className="mb-2 text-lg font-semibold">Create Project</h2>
-          <CreateProjectForm teamId={teamId} />
         </Card>
       </div>
     </div>
