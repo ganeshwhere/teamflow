@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import type { ActionResult, InviteResult, JoinResult, RemoveResult, Team, TeamDetail, TeamListItem } from "@repo/types";
+import type { ActionResult, DeleteResult, InviteResult, JoinResult, RemoveResult, Team, TeamDetail, TeamListItem } from "@repo/types";
 
 import { del, get, patch, post } from "@/lib/api-client";
 
@@ -95,6 +95,17 @@ export async function removeMember(teamId: string, userId: string): Promise<Acti
     const parsed = removeMemberSchema.parse({ teamId, userId });
     const data = await del<RemoveResult>(`/teams/${parsed.teamId}/members/${parsed.userId}`);
     revalidatePath(`/teams/${parsed.teamId}`);
+    return ok(data);
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+export async function deleteTeam(teamId: string): Promise<ActionResult<DeleteResult>> {
+  try {
+    const parsed = teamIdSchema.parse(teamId);
+    const data = await del<DeleteResult>(`/teams/${parsed}`);
+    revalidatePath("/teams");
     return ok(data);
   } catch (error) {
     return fail(error);
