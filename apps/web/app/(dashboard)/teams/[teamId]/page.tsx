@@ -1,16 +1,15 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { ArrowRight, FolderKanban, Users } from "lucide-react";
+import { FolderKanban, PlusCircle, Users } from "lucide-react";
 import type { ProjectItem, TeamDetail } from "@repo/types";
 
 import { getProjects } from "@/actions/project.actions";
 import { getTeam } from "@/actions/team.actions";
 import { PageHeader } from "@/components/layout/page-header";
+import { ProjectOverviewCard } from "@/components/projects/project-overview-card";
 import { SectionSkeleton } from "@/components/layout/section-skeleton";
 import { InviteMemberDialog } from "@/components/teams/invite-member-dialog";
 import { TeamMembersDialog } from "@/components/teams/team-members-dialog";
-import { TeamQuickActionsMenu } from "@/components/teams/team-quick-actions-menu";
-import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 
 async function TeamOverview({ teamId }: { teamId: string }) {
@@ -36,7 +35,6 @@ async function TeamOverview({ teamId }: { teamId: string }) {
         actions={
           <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card/70 p-1.5">
             <TeamMembersDialog members={team.members ?? []} />
-            <TeamQuickActionsMenu teamId={teamId} />
             <InviteMemberDialog teamId={teamId} />
           </div>
         }
@@ -62,37 +60,41 @@ async function TeamOverview({ teamId }: { teamId: string }) {
         </Card>
       </div>
 
-      <Card className="border-border bg-card">
-        <div className="mb-3 flex items-center justify-between gap-2">
-          <h2 className="text-lg font-semibold text-foreground">Projects</h2>
-          <Link href={`/teams/${teamId}/projects`} className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
-            <FolderKanban className="h-4 w-4" />
-            View all
-          </Link>
+      <section className="grid gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="grid gap-0.5">
+            <h2 className="text-lg font-semibold text-foreground">Projects</h2>
+            <p className="text-xs text-muted-foreground">Track active streams and jump directly into delivery.</p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              href={`/teams/${teamId}/projects/new`}
+              className="inline-flex items-center gap-1 rounded-md border border-border bg-popover px-3 py-2 text-sm text-foreground transition-colors hover:bg-accent"
+            >
+              <PlusCircle className="h-4 w-4" />
+              New project
+            </Link>
+            <Link
+              href={`/teams/${teamId}/projects`}
+              className="inline-flex items-center gap-1 rounded-md border border-border bg-popover px-3 py-2 text-sm text-foreground transition-colors hover:bg-accent"
+            >
+              <FolderKanban className="h-4 w-4" />
+              Browse all
+            </Link>
+          </div>
         </div>
 
         {projects.length > 0 ? (
-          <div className="grid gap-2 md:grid-cols-2">
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {projects.slice(0, 8).map((project) => (
-              <Link key={project.id} href={`/teams/${teamId}/projects/${project.id}`} className="group">
-                <div className="rounded-md border border-border bg-popover p-3 transition-colors hover:bg-accent">
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="font-medium text-foreground">{project.name}</p>
-                    <Badge>{project.status ?? "ACTIVE"}</Badge>
-                  </div>
-                  <p className="mt-1 text-xs text-muted-foreground">{project.description ?? "No description provided."}</p>
-                  <p className="mt-2 inline-flex items-center gap-1 text-xs text-muted-foreground group-hover:text-foreground">
-                    Open
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </p>
-                </div>
-              </Link>
+              <ProjectOverviewCard key={project.id} teamId={teamId} project={project} />
             ))}
           </div>
         ) : (
           <p className="text-sm text-muted-foreground">No projects yet. Use quick actions to create one.</p>
         )}
-      </Card>
+      </section>
     </div>
   );
 }
