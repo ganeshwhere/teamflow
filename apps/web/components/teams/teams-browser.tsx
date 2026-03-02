@@ -2,19 +2,15 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
 import type { TeamListItem } from "@repo/types";
 
 import { TeamCard } from "@/components/teams/team-card";
+import { TeamsFilterBar, type TeamSortOption } from "@/components/teams/teams-filter-bar";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
-
-type SortOption = "name" | "members" | "projects" | "recent";
 
 export function TeamsBrowser({ teams }: { teams: TeamListItem[] }) {
   const [query, setQuery] = useState("");
-  const [sortBy, setSortBy] = useState<SortOption>("recent");
+  const [sortBy, setSortBy] = useState<TeamSortOption>("recent");
 
   const visibleTeams = useMemo(() => {
     const filtered = teams.filter((team) => {
@@ -57,28 +53,14 @@ export function TeamsBrowser({ teams }: { teams: TeamListItem[] }) {
 
   return (
     <section className="grid gap-4">
-      <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_220px]">
-        <div className="relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search teams..."
-            className="pl-9"
-          />
-        </div>
-
-        <Select value={sortBy} onChange={(event) => setSortBy(event.target.value as SortOption)}>
-          <option value="recent">Sort: Most Recent</option>
-          <option value="name">Sort: Name</option>
-          <option value="members">Sort: Members</option>
-          <option value="projects">Sort: Projects</option>
-        </Select>
-      </div>
-
-      <p className="text-xs text-muted-foreground">
-        Showing {visibleTeams.length} of {teams.length} teams
-      </p>
+      <TeamsFilterBar
+        query={query}
+        sortBy={sortBy}
+        visibleCount={visibleTeams.length}
+        totalCount={teams.length}
+        onQueryChange={setQuery}
+        onSortChange={setSortBy}
+      />
 
       {visibleTeams.length > 0 ? (
         <div className="grid gap-3 md:grid-cols-2 2xl:grid-cols-3">
