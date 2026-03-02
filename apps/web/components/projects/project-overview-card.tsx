@@ -28,26 +28,27 @@ function statusLabel(status?: string): string {
 
 export function ProjectOverviewCard({ teamId, project }: { teamId: string; project: ProjectItem }) {
   return (
-    <Link href={`/teams/${teamId}/projects/${project.id}`} className="group block h-full">
-      <article className="grid h-full gap-3 rounded-lg border border-border bg-popover p-4 transition-colors hover:bg-accent">
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="line-clamp-2 text-sm font-semibold text-foreground">{project.name}</h3>
-          <Badge className={projectStatusTone(project.status)}>{statusLabel(project.status)}</Badge>
-        </div>
+    <article className="grid h-full gap-3 rounded-lg border border-border bg-popover p-4">
+      <div className="flex items-start justify-between gap-2">
+        <h3 className="line-clamp-2 text-sm font-semibold text-foreground">{project.name}</h3>
+        <Badge className={projectStatusTone(project.status)}>{statusLabel(project.status)}</Badge>
+      </div>
 
-        <p className="line-clamp-3 text-xs text-muted-foreground">{project.description ?? "No description provided."}</p>
+      <p className="line-clamp-3 text-xs text-muted-foreground">{project.description ?? "No description provided."}</p>
 
-        <div className="mt-auto flex items-center justify-between gap-2 border-t border-border pt-3 text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1">
-            <CalendarClock className="h-3.5 w-3.5" />
-            Created {formatDate(project.createdAt)}
-          </span>
-          <span className="inline-flex items-center gap-1 text-foreground/80 group-hover:text-foreground">
-            Open project
-            <ArrowRight className="h-3.5 w-3.5" />
-          </span>
-        </div>
-      </article>
-    </Link>
+      <div className="mt-auto flex items-center justify-between gap-2 border-t border-border pt-3 text-xs text-muted-foreground">
+        <span className="inline-flex items-center gap-1">
+          <CalendarClock className="h-3.5 w-3.5" />
+          Created {formatDate(project.createdAt)}
+        </span>
+        <Link
+          href={`/teams/${teamId}/projects/${project.id}`}
+          className="inline-flex items-center gap-1 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:brightness-95"
+        >
+          Open project
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+      </div>
+    </article>
   );
 }
