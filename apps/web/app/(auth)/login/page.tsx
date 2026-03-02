@@ -1,4 +1,7 @@
 import { signIn } from "@/lib/auth";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 export default function LoginPage() {
   async function signInWithGoogle(): Promise<void> {
@@ -12,20 +15,44 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md items-center justify-center p-6">
-      <div className="grid w-full gap-4 rounded-xl border bg-white p-6 shadow-sm">
-        <h1 className="text-xl font-semibold">Login</h1>
-        <p className="text-sm text-gray-600">Sign in with Google or GitHub.</p>
-        <form action={signInWithGoogle}>
-          <button className="h-10 w-full rounded-md bg-blue-600 px-4 text-sm font-medium text-white hover:bg-blue-500" type="submit">
-            Continue with Google
-          </button>
-        </form>
-        <form action={signInWithGitHub}>
-          <button className="h-10 w-full rounded-md bg-slate-900 px-4 text-sm font-medium text-white hover:bg-slate-700" type="submit">
-            Continue with GitHub
-          </button>
-        </form>
+    <main className="relative min-h-screen overflow-hidden bg-background">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,var(--secondary),transparent_40%),radial-gradient(circle_at_bottom_left,var(--accent),transparent_45%)] opacity-90" />
+      <ThemeToggle className="absolute right-5 top-5 z-20" />
+
+      <div className="mx-auto grid min-h-screen max-w-6xl items-center gap-6 px-6 py-12 lg:grid-cols-[1.2fr_1fr]">
+        <section className="relative z-10 hidden rounded-2xl border border-border bg-card/70 p-10 shadow-xl backdrop-blur lg:block">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Team Flow</p>
+          <h1 className="mt-3 text-4xl font-semibold leading-tight text-foreground">Run projects with calm, clear execution.</h1>
+          <p className="mt-4 max-w-md text-base text-muted-foreground">
+            Organize teams, align priorities, and keep delivery predictable with one focused workspace.
+          </p>
+          <ul className="mt-8 grid gap-3 text-sm text-muted-foreground">
+            <li className="rounded-lg border border-border bg-background/80 px-4 py-3">Kanban + table task workflows</li>
+            <li className="rounded-lg border border-border bg-background/80 px-4 py-3">Role-based team collaboration</li>
+            <li className="rounded-lg border border-border bg-background/80 px-4 py-3">Invite flows and OAuth onboarding</li>
+          </ul>
+        </section>
+
+        <Card className="relative z-10 mx-auto grid w-full max-w-md gap-4 p-6 shadow-xl sm:p-8">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Welcome Back</p>
+            <h2 className="mt-2 text-2xl font-semibold">Sign in to Team Flow</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Use your provider account to continue securely.</p>
+          </div>
+          <form action={signInWithGoogle}>
+            <Button className="w-full" type="submit">
+              Continue with Google
+            </Button>
+          </form>
+          <form action={signInWithGitHub}>
+            <Button className="w-full" type="submit" variant="secondary">
+              Continue with GitHub
+            </Button>
+          </form>
+          <p className="text-xs text-muted-foreground">
+            By continuing, you agree to your workspace security and access policies.
+          </p>
+        </Card>
       </div>
     </main>
   );

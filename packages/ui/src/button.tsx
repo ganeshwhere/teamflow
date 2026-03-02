@@ -9,15 +9,17 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 export function Button({ className, variant = "primary", ...props }: ButtonProps) {
   const variantClassName =
     variant === "primary"
-      ? "bg-slate-900 text-white hover:bg-slate-700"
+      ? "bg-primary text-primary-foreground shadow-sm hover:brightness-95"
       : variant === "secondary"
-        ? "bg-blue-600 text-white hover:bg-blue-500"
-        : "bg-transparent text-slate-700 hover:bg-slate-100";
+        ? "bg-secondary text-secondary-foreground hover:brightness-95"
+        : "bg-transparent text-foreground hover:bg-accent hover:text-accent-foreground";
 
   return (
     <button
       className={cn(
-        "inline-flex h-10 items-center justify-center rounded-md px-4 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50",
+        "inline-flex h-10 items-center justify-center rounded-md px-4 text-sm font-medium transition-colors",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+        "disabled:cursor-not-allowed disabled:opacity-50",
         variantClassName,
         className
       )}

@@ -83,9 +83,9 @@ export function TaskEditForm({
         });
       }}
     >
-      <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
-        <p className="font-medium text-slate-900">{optimisticTask.title}</p>
-        <p className="mt-1 text-xs text-slate-600">
+      <div className="rounded-md border border-border bg-muted p-3 text-sm">
+        <p className="font-medium">{optimisticTask.title}</p>
+        <p className="mt-1 text-xs text-muted-foreground">
           {optimisticTask.status} • {optimisticTask.priority} •{" "}
           {optimisticTask.assigneeId ? "Assigned" : "Unassigned"}
         </p>

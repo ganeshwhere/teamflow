@@ -11,14 +11,16 @@ export function CreateTaskPanel({
   projectId,
   assignees,
   label = "Add Task",
-  variant = "secondary"
+  variant = "secondary",
+  initialOpen = false
 }: {
   projectId: string;
   assignees: UserSummary[];
   label?: string;
   variant?: "primary" | "secondary" | "ghost";
+  initialOpen?: boolean;
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(initialOpen);
 
   return (
     <>

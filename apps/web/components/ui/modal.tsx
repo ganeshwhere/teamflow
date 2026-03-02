@@ -42,7 +42,7 @@ export function Modal({
     <div className="fixed inset-0 z-50">
       <button
         aria-label="Close modal"
-        className="absolute inset-0 bg-slate-900/45"
+        className="absolute inset-0 bg-black/50 backdrop-blur-[1px]"
         onClick={onClose}
         type="button"
       />
@@ -56,8 +56,8 @@ export function Modal({
       >
         <div
           className={cn(
-            "grid gap-4 bg-white shadow-xl",
-            variant === "dialog" ? "rounded-xl border border-slate-200 p-5" : "h-full border-l border-slate-200 p-6"
+            "grid gap-4 border border-border bg-card text-card-foreground shadow-xl",
+            variant === "dialog" ? "rounded-xl p-5" : "h-full p-6"
           )}
           role="dialog"
           aria-modal="true"
@@ -65,12 +65,12 @@ export function Modal({
         >
           <div className="flex items-start justify-between gap-4">
             <div className="grid gap-1">
-              <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
-              {description ? <p className="text-sm text-slate-600">{description}</p> : null}
+              <h2 className="text-lg font-semibold">{title}</h2>
+              {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
             </div>
             <button
               aria-label="Close"
-              className="rounded-md px-2 py-1 text-sm text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+              className="rounded-md px-2 py-1 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground"
               onClick={onClose}
               type="button"
             >

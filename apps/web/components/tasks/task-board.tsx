@@ -15,11 +15,11 @@ function AssigneePill({ task }: { task: TaskBoardItem }) {
   const initial = label.slice(0, 1).toUpperCase();
 
   return (
-    <div className="flex items-center gap-2 text-xs text-slate-600">
+    <div className="flex items-center gap-2 text-xs text-muted-foreground">
       {task.assignee?.avatarUrl ? (
         <img alt={label} className="h-5 w-5 rounded-full object-cover" src={task.assignee.avatarUrl} />
       ) : (
-        <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-200 font-semibold text-slate-700">
+        <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-muted font-semibold text-foreground">
           {initial}
         </span>
       )}
@@ -30,6 +30,12 @@ function AssigneePill({ task }: { task: TaskBoardItem }) {
 
 function isTaskStatus(status: string): status is TaskBoardItem["status"] {
   return taskStatuses.includes(status as TaskBoardItem["status"]);
+}
+
+function statusLabel(status: TaskBoardItem["status"]): string {
+  if (status === "IN_PROGRESS") return "In Progress";
+  if (status === "IN_REVIEW") return "In Review";
+  return status.charAt(0) + status.slice(1).toLowerCase();
 }
 
 export function TaskBoard({
@@ -91,17 +97,22 @@ export function TaskBoard({
         >
           <KanbanBoard className="w-full items-start overflow-x-auto pb-2">
             {taskStatuses.map((status) => (
-              <KanbanColumn key={status} value={status} className="min-h-[280px] min-w-[260px] bg-slate-50">
-                <h3 className="text-sm font-semibold text-slate-700">{status}</h3>
-                {kanbanColumns[status].length === 0 ? <p className="text-xs text-slate-500">No tasks</p> : null}
+              <KanbanColumn key={status} value={status} className="min-h-[280px] min-w-[260px] bg-muted">
+                <div className="mb-1 flex items-center justify-between">
+                  <h3 className="text-sm font-semibold">{statusLabel(status)}</h3>
+                  <span className="rounded-full bg-background px-2 py-0.5 text-[11px] text-muted-foreground">
+                    {kanbanColumns[status].length}
+                  </span>
+                </div>
+                {kanbanColumns[status].length === 0 ? <p className="text-xs text-muted-foreground">No tasks</p> : null}
                 {kanbanColumns[status].map((task) => (
                   <KanbanItem key={task.id} value={task.id} asChild asHandle>
                     <a
                       href={`${basePath}/tasks/${task.id}`}
-                      className="rounded-md border border-slate-200 bg-white p-3 transition hover:border-blue-400"
+                      className="rounded-md border border-border bg-card p-3 text-card-foreground transition hover:border-primary"
                     >
                       <p className="text-sm font-medium">{task.title}</p>
-                      <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
+                      <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
                         <Badge>{task.priority}</Badge>
                         <span>{task.dueDate ? new Date(task.dueDate).toLocaleDateString() : "No due date"}</span>
                       </div>
@@ -118,7 +129,7 @@ export function TaskBoard({
       ) : (
         <Card className="overflow-x-auto p-0">
           <table className="min-w-full text-left text-sm">
-            <thead className="border-b bg-slate-50 text-slate-600">
+            <thead className="border-b border-border bg-muted text-muted-foreground">
               <tr>
                 <th className="px-4 py-3">Task</th>
                 <th className="px-4 py-3">Status</th>
@@ -129,9 +140,9 @@ export function TaskBoard({
             </thead>
             <tbody>
               {tasks.map((task) => (
-                <tr key={task.id} className="border-b last:border-b-0">
+                <tr key={task.id} className="border-b border-border last:border-b-0">
                   <td className="px-4 py-3">
-                    <a href={`${basePath}/tasks/${task.id}`} className="font-medium text-blue-700 hover:underline">
+                    <a href={`${basePath}/tasks/${task.id}`} className="font-medium text-primary hover:underline">
                       {task.title}
                     </a>
                   </td>
@@ -148,7 +159,7 @@ export function TaskBoard({
         </Card>
       )}
 
-      {view === "kanban" && isPending ? <p className="text-xs text-slate-500">Updating task status...</p> : null}
+      {view === "kanban" && isPending ? <p className="text-xs text-muted-foreground">Updating task status...</p> : null}
       {moveError ? <p className="text-xs text-red-600">{moveError}</p> : null}
     </section>
   );

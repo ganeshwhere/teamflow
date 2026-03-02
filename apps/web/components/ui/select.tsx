@@ -8,7 +8,8 @@ export function Select({ className, ...props }: SelectHTMLAttributes<HTMLSelectE
   return (
     <select
       className={cn(
-        "h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm outline-none ring-blue-500 focus:ring-2",
+        "h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground shadow-sm",
+        "outline-none focus:ring-2 focus:ring-ring",
         className
       )}
       {...props}

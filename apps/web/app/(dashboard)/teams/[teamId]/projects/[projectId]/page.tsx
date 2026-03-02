@@ -1,9 +1,11 @@
 import { Suspense } from "react";
+import { ListChecks } from "lucide-react";
 import type { ProjectWithStatsResponse, TaskItem, UserSummary } from "@repo/types";
 
 import { getProject } from "@/actions/project.actions";
 import { getTasks } from "@/actions/task.actions";
 import { getTeam } from "@/actions/team.actions";
+import { PageHeader } from "@/components/layout/page-header";
 import { SectionSkeleton } from "@/components/layout/section-skeleton";
 import { CreateTaskPanel } from "@/components/tasks/create-task-panel";
 import { TaskBoard } from "@/components/tasks/task-board";
@@ -12,10 +14,12 @@ import { Card } from "@/components/ui/card";
 
 async function ProjectOverview({
   teamId,
-  projectId
+  projectId,
+  newTaskOnLoad
 }: {
   teamId: string;
   projectId: string;
+  newTaskOnLoad: boolean;
 }) {
   const projectResult = await getProject(teamId, projectId);
   const tasksResult = await getTasks(projectId);
@@ -35,36 +39,46 @@ async function ProjectOverview({
 
   return (
     <div className="grid gap-4">
-      <nav className="flex flex-wrap items-start justify-between gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3">
-        <div>
-          <p className="text-[11px] uppercase tracking-wide text-slate-500">Project Workspace</p>
-          <h1 className="text-2xl font-semibold text-slate-900">{payload.project.name}</h1>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge>{payload.project.status ?? "ACTIVE"}</Badge>
-          <CreateTaskPanel projectId={projectId} assignees={assignees} label="Add Task" variant="primary" />
-        </div>
-      </nav>
+      <PageHeader
+        eyebrow="Project Workspace"
+        title={payload.project.name}
+        description={payload.project.description ?? "No description"}
+        actions={
+          <>
+            <Badge>{payload.project.status ?? "ACTIVE"}</Badge>
+            <CreateTaskPanel
+              projectId={projectId}
+              assignees={assignees}
+              label="Add Task"
+              variant="primary"
+              initialOpen={newTaskOnLoad}
+            />
+          </>
+        }
+      />
 
       <Card>
-        <p className="text-sm text-slate-600">{payload.project.description ?? "No description"}</p>
-        <div className="mt-4 grid gap-3 rounded-md border border-slate-200 bg-slate-50 p-3 sm:grid-cols-4">
-          <div className="rounded-md bg-white px-3 py-2 text-xs text-slate-600">
-            <p className="text-[11px] uppercase tracking-wide text-slate-500">Todo</p>
-            <p className="mt-1 text-base font-semibold text-slate-900">{payload.taskCounts?.TODO ?? 0}</p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-4">
+          <div className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
+            <p className="text-[11px] uppercase tracking-wide">Todo</p>
+            <p className="mt-1 text-base font-semibold text-foreground">{payload.taskCounts?.TODO ?? 0}</p>
           </div>
-          <div className="rounded-md bg-white px-3 py-2 text-xs text-slate-600">
-            <p className="text-[11px] uppercase tracking-wide text-slate-500">In Progress</p>
-            <p className="mt-1 text-base font-semibold text-slate-900">{payload.taskCounts?.IN_PROGRESS ?? 0}</p>
+          <div className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
+            <p className="text-[11px] uppercase tracking-wide">In Progress</p>
+            <p className="mt-1 text-base font-semibold text-foreground">{payload.taskCounts?.IN_PROGRESS ?? 0}</p>
           </div>
-          <div className="rounded-md bg-white px-3 py-2 text-xs text-slate-600">
-            <p className="text-[11px] uppercase tracking-wide text-slate-500">In Review</p>
-            <p className="mt-1 text-base font-semibold text-slate-900">{payload.taskCounts?.IN_REVIEW ?? 0}</p>
+          <div className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
+            <p className="text-[11px] uppercase tracking-wide">In Review</p>
+            <p className="mt-1 text-base font-semibold text-foreground">{payload.taskCounts?.IN_REVIEW ?? 0}</p>
           </div>
-          <div className="rounded-md bg-white px-3 py-2 text-xs text-slate-600">
-            <p className="text-[11px] uppercase tracking-wide text-slate-500">Done</p>
-            <p className="mt-1 text-base font-semibold text-slate-900">{payload.taskCounts?.DONE ?? 0}</p>
+          <div className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
+            <p className="text-[11px] uppercase tracking-wide">Done</p>
+            <p className="mt-1 text-base font-semibold text-foreground">{payload.taskCounts?.DONE ?? 0}</p>
           </div>
+        </div>
+        <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground">
+          <ListChecks className="h-3.5 w-3.5" />
+          Drag tasks across columns to update status instantly.
         </div>
       </Card>
 
@@ -74,15 +88,19 @@ async function ProjectOverview({
 }
 
 export default async function ProjectPage({
-  params
+  params,
+  searchParams
 }: {
   params: Promise<{ teamId: string; projectId: string }>;
+  searchParams: Promise<{ newTask?: string }>;
 }) {
   const { teamId, projectId } = await params;
+  const { newTask } = await searchParams;
+  const newTaskOnLoad = newTask === "1" || newTask === "true";
 
   return (
     <Suspense fallback={<SectionSkeleton />}>
-      <ProjectOverview teamId={teamId} projectId={projectId} />
+      <ProjectOverview teamId={teamId} projectId={projectId} newTaskOnLoad={newTaskOnLoad} />
     </Suspense>
   );
 }
