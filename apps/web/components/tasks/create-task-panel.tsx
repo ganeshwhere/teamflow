@@ -9,17 +9,21 @@ import { Modal } from "@/components/ui/modal";
 
 export function CreateTaskPanel({
   projectId,
-  assignees
+  assignees,
+  label = "Add Task",
+  variant = "secondary"
 }: {
   projectId: string;
   assignees: UserSummary[];
+  label?: string;
+  variant?: "primary" | "secondary" | "ghost";
 }) {
   const [open, setOpen] = useState(false);
 
   return (
     <>
-      <Button onClick={() => setOpen(true)} type="button" variant="secondary">
-        Add Task
+      <Button onClick={() => setOpen(true)} type="button" variant={variant}>
+        {label}
       </Button>
       <Modal
         open={open}

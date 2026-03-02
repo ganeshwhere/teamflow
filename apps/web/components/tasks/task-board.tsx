@@ -1,10 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
+import type { TaskStatusValue } from "@repo/types";
 
+import { updateTaskStatus } from "@/actions/task.actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Kanban, KanbanBoard, KanbanColumn, KanbanItem } from "@/components/ui/kanban";
 import { groupTasksByStatus, taskStatuses, type TaskBoardItem } from "./task-board.utils";
 
 function AssigneePill({ task }: { task: TaskBoardItem }) {
@@ -25,10 +28,28 @@ function AssigneePill({ task }: { task: TaskBoardItem }) {
   );
 }
 
-export function TaskBoard({ tasks, basePath }: { tasks: TaskBoardItem[]; basePath: string }) {
-  const [view, setView] = useState<"kanban" | "table">("kanban");
+function isTaskStatus(status: string): status is TaskBoardItem["status"] {
+  return taskStatuses.includes(status as TaskBoardItem["status"]);
+}
 
+export function TaskBoard({
+  tasks,
+  basePath,
+  projectId
+}: {
+  tasks: TaskBoardItem[];
+  basePath: string;
+  projectId: string;
+}) {
+  const [view, setView] = useState<"kanban" | "table">("kanban");
   const grouped = useMemo(() => groupTasksByStatus(tasks), [tasks]);
+  const [kanbanColumns, setKanbanColumns] = useState(grouped);
+  const [moveError, setMoveError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    setKanbanColumns(grouped);
+  }, [grouped]);
 
   return (
     <section className="grid gap-4">
@@ -45,30 +66,55 @@ export function TaskBoard({ tasks, basePath }: { tasks: TaskBoardItem[]; basePat
       </div>
 
       {view === "kanban" ? (
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          {taskStatuses.map((status) => (
-            <Card key={status} className="grid gap-2 bg-slate-50">
-              <h3 className="text-sm font-semibold text-slate-700">{status}</h3>
-              {grouped[status].length === 0 ? <p className="text-xs text-slate-500">No tasks</p> : null}
-              {grouped[status].map((task) => (
-                <a
-                  key={task.id}
-                  href={`${basePath}/tasks/${task.id}`}
-                  className="rounded-md border border-slate-200 bg-white p-3 transition hover:border-blue-400"
-                >
-                  <p className="text-sm font-medium">{task.title}</p>
-                  <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
-                    <Badge>{task.priority}</Badge>
-                    <span>{task.dueDate ? new Date(task.dueDate).toLocaleDateString() : "No due date"}</span>
-                  </div>
-                  <div className="mt-2">
-                    <AssigneePill task={task} />
-                  </div>
-                </a>
-              ))}
-            </Card>
-          ))}
-        </div>
+        <Kanban
+          value={kanbanColumns}
+          onValueChange={(value) => setKanbanColumns(value)}
+          onMove={(event) => {
+            const activeTaskId = String(event.active.id);
+            const fromColumn = String(event.active.data.current?.sortable?.containerId ?? "");
+            const overColumn =
+              String(event.over?.data.current?.sortable?.containerId ?? "") || String(event.over?.id ?? "");
+
+            if (!isTaskStatus(fromColumn) || !isTaskStatus(overColumn) || fromColumn === overColumn) {
+              return;
+            }
+
+            setMoveError(null);
+            startTransition(async () => {
+              const result = await updateTaskStatus(projectId, activeTaskId, overColumn as TaskStatusValue);
+              if (result.error) {
+                setMoveError(result.error);
+              }
+            });
+          }}
+          getItemValue={(item) => item.id}
+        >
+          <KanbanBoard className="w-full items-start overflow-x-auto pb-2">
+            {taskStatuses.map((status) => (
+              <KanbanColumn key={status} value={status} className="min-h-[280px] min-w-[260px] bg-slate-50">
+                <h3 className="text-sm font-semibold text-slate-700">{status}</h3>
+                {kanbanColumns[status].length === 0 ? <p className="text-xs text-slate-500">No tasks</p> : null}
+                {kanbanColumns[status].map((task) => (
+                  <KanbanItem key={task.id} value={task.id} asChild asHandle>
+                    <a
+                      href={`${basePath}/tasks/${task.id}`}
+                      className="rounded-md border border-slate-200 bg-white p-3 transition hover:border-blue-400"
+                    >
+                      <p className="text-sm font-medium">{task.title}</p>
+                      <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
+                        <Badge>{task.priority}</Badge>
+                        <span>{task.dueDate ? new Date(task.dueDate).toLocaleDateString() : "No due date"}</span>
+                      </div>
+                      <div className="mt-2">
+                        <AssigneePill task={task} />
+                      </div>
+                    </a>
+                  </KanbanItem>
+                ))}
+              </KanbanColumn>
+            ))}
+          </KanbanBoard>
+        </Kanban>
       ) : (
         <Card className="overflow-x-auto p-0">
           <table className="min-w-full text-left text-sm">
@@ -101,6 +147,9 @@ export function TaskBoard({ tasks, basePath }: { tasks: TaskBoardItem[]; basePat
           </table>
         </Card>
       )}
+
+      {view === "kanban" && isPending ? <p className="text-xs text-slate-500">Updating task status...</p> : null}
+      {moveError ? <p className="text-xs text-red-600">{moveError}</p> : null}
     </section>
   );
 }
