@@ -1,4 +1,4 @@
-import { ForbiddenException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException } from "@nestjs/common";
 import { TeamRole } from "@prisma/client";
 
 import { TeamsService } from "./teams.service";
@@ -69,5 +69,34 @@ describe("TeamsService", () => {
         }
       })
     );
+  });
+
+  it("allows only owner to delete team", async () => {
+    const service = new TeamsService(
+      {
+        team: {
+          findUnique: jest.fn().mockResolvedValue({ id: "team_1", ownerId: "owner_user" }),
+          delete: jest.fn()
+        }
+      } as never,
+      { verifyAsync: jest.fn() } as never,
+      { sendTeamInviteEmail: jest.fn() } as never
+    );
+
+    await expect(service.deleteTeam("team_1", user)).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
+  it("rejects join when token team does not match route team", async () => {
+    const service = new TeamsService(
+      {
+        teamMember: { upsert: jest.fn() }
+      } as never,
+      {
+        verifyAsync: jest.fn().mockResolvedValue({ teamId: "team_2", email: user.email })
+      } as never,
+      { sendTeamInviteEmail: jest.fn() } as never
+    );
+
+    await expect(service.joinTeam("team_1", "token", user)).rejects.toBeInstanceOf(BadRequestException);
   });
 });
