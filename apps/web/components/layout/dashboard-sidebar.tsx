@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import {
   Bell,
@@ -12,10 +13,13 @@ import {
   House,
   KanbanSquare,
   ListTodo,
+  LogOut,
   MoreVertical,
   PlusCircle,
   Search,
+  Settings,
   Star,
+  UserRound,
   Users,
   X
 } from "lucide-react";
@@ -213,7 +217,9 @@ function SidebarContent({
     project: true,
     actions: true
   });
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
+  const accountMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     try {
@@ -240,6 +246,32 @@ function SidebarContent({
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
+  useEffect(() => {
+    setAccountMenuOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    const onDocumentClick = (event: MouseEvent) => {
+      if (!accountMenuRef.current?.contains(event.target as Node)) {
+        setAccountMenuOpen(false);
+      }
+    };
+
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setAccountMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", onDocumentClick);
+    document.addEventListener("keydown", onEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", onDocumentClick);
+      document.removeEventListener("keydown", onEscape);
+    };
   }, []);
 
   const allItems = useMemo<NavItem[]>(
@@ -447,22 +479,56 @@ function SidebarContent({
       </div>
 
       <div className="px-3 pb-3">
-        <div className="flex items-center gap-2 rounded-lg bg-sidebar-accent px-2.5 py-2">
-          <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
-            {getUserInitials(user)}
-          </span>
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-sidebar-foreground">{userName}</p>
-            <p className="truncate text-xs text-sidebar-foreground/65">{userEmail}</p>
-          </div>
-          <Button
+        <div className="relative" ref={accountMenuRef}>
+          <button
             type="button"
-            variant="ghost"
-            className="ml-auto h-8 w-8 shrink-0 rounded-md p-0 text-sidebar-foreground/70 hover:bg-sidebar hover:text-sidebar-foreground"
-            aria-label="Open user menu"
+            className="flex w-full items-center gap-2 rounded-lg bg-sidebar-accent px-2.5 py-2 text-left transition-colors hover:bg-sidebar"
+            onClick={() => setAccountMenuOpen((current) => !current)}
           >
-            <MoreVertical className="h-4 w-4" />
-          </Button>
+            <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+              {getUserInitials(user)}
+            </span>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-sidebar-foreground">{userName}</p>
+              <p className="truncate text-xs text-sidebar-foreground/65">{userEmail}</p>
+            </div>
+            <span className="ml-auto inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-sidebar-foreground/70">
+              <MoreVertical className="h-4 w-4" />
+            </span>
+          </button>
+
+          {accountMenuOpen ? (
+            <div className="absolute bottom-[calc(100%+0.45rem)] right-0 z-10 w-52 rounded-lg border border-sidebar-border bg-sidebar p-1 shadow-lg">
+              <Link
+                href="/dashboard/account"
+                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-sidebar-foreground/90 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                onClick={onNavigate}
+              >
+                <UserRound className="h-4 w-4" />
+                Account
+              </Link>
+              <Link
+                href="/dashboard/settings"
+                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-sidebar-foreground/90 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                onClick={onNavigate}
+              >
+                <Settings className="h-4 w-4" />
+                Settings
+              </Link>
+              <button
+                type="button"
+                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-destructive transition-colors hover:bg-destructive/10"
+                onClick={async () => {
+                  setAccountMenuOpen(false);
+                  onNavigate?.();
+                  await signOut({ callbackUrl: "/login" });
+                }}
+              >
+                <LogOut className="h-4 w-4" />
+                Logout
+              </button>
+            </div>
+          ) : null}
         </div>
       </div>
     </>
