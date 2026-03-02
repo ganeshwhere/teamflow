@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { FolderKanban, PlusCircle, Users } from "lucide-react";
+import { ArrowRight, FolderKanban, Users } from "lucide-react";
 import type { ProjectItem, TeamDetail } from "@repo/types";
 
 import { getProjects } from "@/actions/project.actions";
@@ -8,12 +8,13 @@ import { getTeam } from "@/actions/team.actions";
 import { PageHeader } from "@/components/layout/page-header";
 import { SectionSkeleton } from "@/components/layout/section-skeleton";
 import { InviteMemberDialog } from "@/components/teams/invite-member-dialog";
+import { TeamMembersDialog } from "@/components/teams/team-members-dialog";
+import { TeamQuickActionsMenu } from "@/components/teams/team-quick-actions-menu";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 
 async function TeamOverview({ teamId }: { teamId: string }) {
-  const teamResult = await getTeam(teamId);
-  const projectsResult = await getProjects(teamId);
+  const [teamResult, projectsResult] = await Promise.all([getTeam(teamId), getProjects(teamId)]);
 
   const team: TeamDetail | null = teamResult.data;
   const projects: ProjectItem[] = projectsResult.data ?? [];
@@ -31,74 +32,66 @@ async function TeamOverview({ teamId }: { teamId: string }) {
       <PageHeader
         eyebrow="Team"
         title={team.name}
-        description={team.description ?? "No description"}
-        actions={<InviteMemberDialog teamId={teamId} />}
+        description={team.description ?? "No description provided."}
+        actions={
+          <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card/70 p-1.5">
+            <TeamMembersDialog members={team.members ?? []} />
+            <TeamQuickActionsMenu teamId={teamId} />
+            <InviteMemberDialog teamId={teamId} />
+          </div>
+        }
       />
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Members</h2>
-            <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground">
-              <Users className="h-3.5 w-3.5" />
-              {(team.members ?? []).length}
-            </span>
-          </div>
-          <div className="grid gap-2">
-            {(team.members ?? []).map((member) => (
-              <div key={member.id} className="flex items-center justify-between rounded-md border border-border bg-muted/70 p-2">
-                <span className="text-sm">{member.user.name ?? member.user.email}</span>
-                <Badge>{member.role}</Badge>
-              </div>
-            ))}
-          </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Card className="grid gap-1 border-border bg-card">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Members</p>
+          <p className="text-2xl font-semibold text-foreground">{(team.members ?? []).length}</p>
+          <p className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+            <Users className="h-3.5 w-3.5" />
+            Active collaborators
+          </p>
         </Card>
 
-        <Card>
-          <h2 className="text-lg font-semibold">Quick Actions</h2>
-          <div className="mt-3 grid gap-2">
-            <Link
-              href={`/teams/${teamId}/projects/new`}
-              className="inline-flex items-center justify-between rounded-md border border-border bg-muted/70 px-3 py-2 text-sm text-foreground transition hover:border-primary"
-            >
-              <span className="inline-flex items-center gap-2">
-                <PlusCircle className="h-4 w-4 text-muted-foreground" />
-                Create project
-              </span>
-              <span className="text-xs text-muted-foreground">New</span>
-            </Link>
-            <Link
-              href={`/teams/${teamId}/projects`}
-              className="inline-flex items-center justify-between rounded-md border border-border bg-muted/70 px-3 py-2 text-sm text-foreground transition hover:border-primary"
-            >
-              <span className="inline-flex items-center gap-2">
-                <FolderKanban className="h-4 w-4 text-muted-foreground" />
-                Manage projects
-              </span>
-              <span className="text-xs text-muted-foreground">Browse</span>
-            </Link>
-          </div>
+        <Card className="grid gap-1 border-border bg-card">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Projects</p>
+          <p className="text-2xl font-semibold text-foreground">{projects.length}</p>
+          <p className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+            <FolderKanban className="h-3.5 w-3.5" />
+            Delivery workstreams
+          </p>
         </Card>
       </div>
 
-      <Card>
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Projects</h2>
+      <Card className="border-border bg-card">
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <h2 className="text-lg font-semibold text-foreground">Projects</h2>
           <Link href={`/teams/${teamId}/projects`} className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
             <FolderKanban className="h-4 w-4" />
             View all
           </Link>
         </div>
-        <div className="grid gap-2">
-          {projects.map((project) => (
-            <Link key={project.id} href={`/teams/${teamId}/projects/${project.id}`}>
-              <div className="rounded-md border border-border bg-muted/70 p-3 transition hover:border-primary">
-                <p className="font-medium">{project.name}</p>
-                <p className="text-xs text-muted-foreground">{project.status ?? "ACTIVE"}</p>
-              </div>
-            </Link>
-          ))}
-        </div>
+
+        {projects.length > 0 ? (
+          <div className="grid gap-2 md:grid-cols-2">
+            {projects.slice(0, 8).map((project) => (
+              <Link key={project.id} href={`/teams/${teamId}/projects/${project.id}`} className="group">
+                <div className="rounded-md border border-border bg-popover p-3 transition-colors hover:bg-accent">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="font-medium text-foreground">{project.name}</p>
+                    <Badge>{project.status ?? "ACTIVE"}</Badge>
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">{project.description ?? "No description provided."}</p>
+                  <p className="mt-2 inline-flex items-center gap-1 text-xs text-muted-foreground group-hover:text-foreground">
+                    Open
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">No projects yet. Use quick actions to create one.</p>
+        )}
       </Card>
     </div>
   );

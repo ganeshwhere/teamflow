@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { UserPlus } from "lucide-react";
 
 import { InviteMemberForm } from "@/components/teams/invite-member-form";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,8 @@ export function InviteMemberDialog({ teamId }: { teamId: string }) {
 
   return (
     <>
-      <Button onClick={() => setOpen(true)} type="button" variant="secondary">
+      <Button onClick={() => setOpen(true)} type="button" className="h-9 rounded-lg px-3">
+        <UserPlus className="mr-1.5 h-4 w-4" />
         Invite Member
       </Button>
       <Modal
