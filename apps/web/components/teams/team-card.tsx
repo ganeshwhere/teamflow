@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ArrowRight, FolderKanban, Users } from "lucide-react";
+import { ArrowRight, FolderKanban } from "lucide-react";
 import type { TeamListItem } from "@repo/types";
 
 import { TeamCardMenu } from "@/components/teams/team-card-menu";
-import { Badge } from "@/components/ui/badge";
+import { AvatarGroup } from "@/components/ui/avatar-group";
 import { Card } from "@/components/ui/card";
 
 function teamInitials(name: string): string {
@@ -18,6 +18,32 @@ function teamInitials(name: string): string {
     return words[0].slice(0, 2).toUpperCase();
   }
   return `${words[0][0] ?? ""}${words[1][0] ?? ""}`.toUpperCase();
+}
+
+function memberChipTone(index: number): string {
+  if (index % 4 === 0) {
+    return "bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-200";
+  }
+  if (index % 4 === 1) {
+    return "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200";
+  }
+  if (index % 4 === 2) {
+    return "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200";
+  }
+  return "bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-200";
+}
+
+function memberChipLabel(teamName: string, index: number): string {
+  const base = teamInitials(teamName);
+  const first = base[0] ?? "T";
+  const second = base[1] ?? "F";
+  if (index === 0) {
+    return `${first}${second}`;
+  }
+  if (index === 1) {
+    return `${second}${first}`;
+  }
+  return `${first}${index + 1}`;
 }
 
 export function TeamCard({ team }: { team: TeamListItem }) {
@@ -38,15 +64,26 @@ export function TeamCard({ team }: { team: TeamListItem }) {
 
       <p className="line-clamp-2 text-sm text-muted-foreground">{team.description ?? "No description provided."}</p>
 
-      <div className="flex items-center gap-2 text-xs">
-        <Badge className="bg-muted text-muted-foreground">
-          <Users className="mr-1 h-3.5 w-3.5" />
-          {team.memberCount} {team.memberCount === 1 ? "member" : "members"}
-        </Badge>
-        <Badge className="bg-muted text-muted-foreground">
-          <FolderKanban className="mr-1 h-3.5 w-3.5" />
+      <div className="flex items-center justify-between gap-3">
+        {team.memberCount > 0 ? (
+          <AvatarGroup max={4} size={34}>
+            {Array.from({ length: Math.min(team.memberCount, 4) }).map((_, index) => (
+              <span
+                key={`${team.id}-member-${index}`}
+                className={`inline-flex h-full w-full items-center justify-center rounded-full border-2 border-card text-[10px] font-semibold ${memberChipTone(index)}`}
+              >
+                {memberChipLabel(team.name, index)}
+              </span>
+            ))}
+          </AvatarGroup>
+        ) : (
+          <span className="text-xs text-muted-foreground">No members yet</span>
+        )}
+
+        <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+          <FolderKanban className="h-3.5 w-3.5" />
           {team.projectCount} {team.projectCount === 1 ? "project" : "projects"}
-        </Badge>
+        </span>
       </div>
 
       {error ? <p className="text-xs text-destructive">{error}</p> : null}
