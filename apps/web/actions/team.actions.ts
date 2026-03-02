@@ -5,7 +5,7 @@ import { z } from "zod";
 
 import type { ActionResult, InviteResult, JoinResult, RemoveResult, Team, TeamDetail, TeamListItem } from "@repo/types";
 
-import { del, get, post } from "@/lib/api-client";
+import { del, get, patch, post } from "@/lib/api-client";
 
 import { createTeamInputSchema } from "./schemas";
 import { fail, ok } from "./utils";
@@ -48,6 +48,19 @@ export async function createTeam(formData: { name: string; description?: string 
     const parsed = createTeamInputSchema.parse(formData);
     const data = await post<Team>("/teams", parsed);
     revalidatePath("/teams");
+    return ok(data);
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+export async function updateTeam(teamId: string, formData: { name: string; description?: string }): Promise<ActionResult<Team>> {
+  try {
+    const parsedTeamId = teamIdSchema.parse(teamId);
+    const parsed = createTeamInputSchema.parse(formData);
+    const data = await patch<Team>(`/teams/${parsedTeamId}`, parsed);
+    revalidatePath("/teams");
+    revalidatePath(`/teams/${parsedTeamId}`);
     return ok(data);
   } catch (error) {
     return fail(error);
