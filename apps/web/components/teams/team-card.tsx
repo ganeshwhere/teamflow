@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { FolderKanban } from "lucide-react";
 import type { TeamListItem } from "@repo/types";
+import { useRouter } from "next/navigation";
 
 import { TeamCardMenu } from "@/components/teams/team-card-menu";
 import { AvatarGroup } from "@/components/ui/avatar-group";
@@ -47,12 +47,42 @@ function memberChipLabel(teamName: string, index: number): string {
 }
 
 export function TeamCard({ team }: { team: TeamListItem }) {
+  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  const teamHref = `/teams/${team.id}`;
 
   return (
-    <Card className="relative grid h-full gap-4 border-border bg-card p-4">
-      <Link href={`/teams/${team.id}`} aria-label={`Open ${team.name}`} className="absolute inset-0 z-0 rounded-xl" />
+    <Card
+      role="link"
+      tabIndex={0}
+      aria-label={`Open ${team.name}`}
+      onClick={(event) => {
+        const target = event.target as HTMLElement;
+        if (target.closest('[data-no-card-nav="true"]')) {
+          return;
+        }
 
+        router.push(teamHref);
+      }}
+      onKeyDown={(event) => {
+        const target = event.target as HTMLElement;
+        if (target.closest('[data-no-card-nav="true"]')) {
+          return;
+        }
+
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          router.push(teamHref);
+        }
+      }}
+      onMouseEnter={() => {
+        router.prefetch(teamHref);
+      }}
+      onFocus={() => {
+        router.prefetch(teamHref);
+      }}
+      className="grid h-full cursor-pointer gap-4 border-border bg-card p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
       <div className="relative z-10 flex items-start gap-3">
         <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-sm font-semibold text-foreground">
           {teamInitials(team.name)}
@@ -64,7 +94,9 @@ export function TeamCard({ team }: { team: TeamListItem }) {
         <TeamCardMenu teamId={team.id} teamName={team.name} onErrorChange={setError} />
       </div>
 
-      <p className="relative z-10 line-clamp-2 text-sm text-muted-foreground">{team.description ?? "No description provided."}</p>
+      <p className="relative z-10 line-clamp-2 text-sm text-muted-foreground">
+        {team.description ?? "No description provided."}
+      </p>
 
       <div className="relative z-10 flex items-center justify-between gap-3">
         {team.memberCount > 0 ? (

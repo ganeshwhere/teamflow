@@ -44,7 +44,10 @@ export function TeamCardMenu({ teamId, teamName, onErrorChange }: TeamCardMenuPr
     }
 
     const handleOutside = (event: MouseEvent) => {
-      if (!menuRef.current?.contains(event.target as Node) && !triggerRef.current?.contains(event.target as Node)) {
+      if (
+        !menuRef.current?.contains(event.target as Node) &&
+        !triggerRef.current?.contains(event.target as Node)
+      ) {
         closeMenu();
       }
     };
@@ -67,7 +70,12 @@ export function TeamCardMenu({ teamId, teamName, onErrorChange }: TeamCardMenuPr
   }, [menuOpen]);
 
   return (
-    <div className="relative">
+    <div
+      className="relative"
+      data-no-card-nav="true"
+      onClick={(event) => event.stopPropagation()}
+      onMouseDown={(event) => event.stopPropagation()}
+    >
       <button
         ref={triggerRef}
         type="button"
@@ -76,6 +84,8 @@ export function TeamCardMenu({ teamId, teamName, onErrorChange }: TeamCardMenuPr
           setMenuOpen((previous) => !previous);
         }}
         onKeyDown={(event) => {
+          event.stopPropagation();
+
           if (event.key === "ArrowDown") {
             event.preventDefault();
             onErrorChange?.(null);
@@ -103,7 +113,9 @@ export function TeamCardMenu({ teamId, teamName, onErrorChange }: TeamCardMenuPr
               return;
             }
 
-            const currentIndex = Array.from(menuItems).findIndex((item) => item === document.activeElement);
+            const currentIndex = Array.from(menuItems).findIndex(
+              (item) => item === document.activeElement,
+            );
 
             if (event.key === "ArrowDown") {
               event.preventDefault();
