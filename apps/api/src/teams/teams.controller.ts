@@ -1,18 +1,17 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  UseGuards
-} from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from "@nestjs/common";
 import { TeamRole, type Team } from "@prisma/client";
-import type { DeleteResult, InviteResult, JoinResult, RemoveResult, TeamDetail, TeamListItem } from "@repo/types";
+import type {
+  DeleteResult,
+  InviteResult,
+  JoinResult,
+  RemoveResult,
+  TeamDetail,
+  TeamListItem,
+} from "@repo/types";
 
 import { CurrentUser } from "../auth/decorators/current-user.decorator";
 import { Roles } from "../auth/decorators/roles.decorator";
+import { RolesGuard } from "../auth/guards/roles.guard";
 import type { AuthUser } from "../auth/interfaces/auth-user.interface";
 
 import { CreateTeamDto } from "./dto/create-team.dto";
@@ -42,33 +41,41 @@ export class TeamsController {
     return this.teamsService.getTeam(id);
   }
 
-  @UseGuards(TeamGuard)
+  @UseGuards(TeamGuard, RolesGuard)
   @Roles(TeamRole.OWNER, TeamRole.ADMIN)
   @Patch(":id")
   updateTeam(@Param("id") id: string, @Body() dto: UpdateTeamDto): Promise<Team> {
     return this.teamsService.updateTeam(id, dto);
   }
 
-  @UseGuards(TeamGuard)
+  @UseGuards(TeamGuard, RolesGuard)
   @Roles(TeamRole.OWNER)
   @Delete(":id")
   deleteTeam(@Param("id") id: string, @CurrentUser() user: AuthUser): Promise<DeleteResult> {
     return this.teamsService.deleteTeam(id, user);
   }
 
-  @UseGuards(TeamGuard)
+  @UseGuards(TeamGuard, RolesGuard)
   @Roles(TeamRole.OWNER, TeamRole.ADMIN)
   @Post(":id/invite")
-  inviteMember(@Param("id") id: string, @Body() dto: InviteMemberDto, @CurrentUser() user: AuthUser): Promise<InviteResult> {
+  inviteMember(
+    @Param("id") id: string,
+    @Body() dto: InviteMemberDto,
+    @CurrentUser() user: AuthUser,
+  ): Promise<InviteResult> {
     return this.teamsService.inviteMember(id, dto, user);
   }
 
   @Post(":id/join")
-  joinTeam(@Param("id") id: string, @Body() dto: JoinTeamDto, @CurrentUser() user: AuthUser): Promise<JoinResult> {
+  joinTeam(
+    @Param("id") id: string,
+    @Body() dto: JoinTeamDto,
+    @CurrentUser() user: AuthUser,
+  ): Promise<JoinResult> {
     return this.teamsService.joinTeam(id, dto.token, user);
   }
 
-  @UseGuards(TeamGuard)
+  @UseGuards(TeamGuard, RolesGuard)
   @Roles(TeamRole.OWNER, TeamRole.ADMIN)
   @Delete(":id/members/:userId")
   removeMember(@Param("id") id: string, @Param("userId") userId: string): Promise<RemoveResult> {
