@@ -50,6 +50,7 @@ export interface ProjectItem {
   status: ProjectStatusValue;
   createdAt: DateValue;
   teamId: string;
+  creator?: UserSummary | null;
 }
 
 export interface ProjectWithStatsResponse {

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, CalendarClock } from "lucide-react";
+import { CalendarClock } from "lucide-react";
 import type { ProjectItem } from "@repo/types";
 
 import { Badge } from "@/components/ui/badge";
@@ -26,29 +26,46 @@ function statusLabel(status?: string): string {
   return (status ?? "ACTIVE").replaceAll("_", " ");
 }
 
+function creatorInitial(project: ProjectItem): string {
+  const label = project.creator?.name ?? project.creator?.email ?? "U";
+  return label.slice(0, 1).toUpperCase();
+}
+
 export function ProjectOverviewCard({ teamId, project }: { teamId: string; project: ProjectItem }) {
   return (
-    <article className="grid h-full gap-3 rounded-lg border border-border bg-popover p-4">
-      <div className="flex items-start justify-between gap-2">
-        <h3 className="line-clamp-2 text-sm font-semibold text-foreground">{project.name}</h3>
-        <Badge className={projectStatusTone(project.status)}>{statusLabel(project.status)}</Badge>
-      </div>
+    <Link
+      href={`/teams/${teamId}/projects/${project.id}`}
+      className="block h-full rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      <article className="grid h-full gap-3 rounded-lg border border-border bg-popover p-4">
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="line-clamp-2 text-sm font-semibold text-foreground">{project.name}</h3>
+          <Badge className={projectStatusTone(project.status)}>{statusLabel(project.status)}</Badge>
+        </div>
 
-      <p className="line-clamp-3 text-xs text-muted-foreground">{project.description ?? "No description provided."}</p>
+        <p className="line-clamp-3 text-xs text-muted-foreground">{project.description ?? "No description provided."}</p>
 
-      <div className="mt-auto flex items-center justify-between gap-2 border-t border-border pt-3 text-xs text-muted-foreground">
-        <span className="inline-flex items-center gap-1">
-          <CalendarClock className="h-3.5 w-3.5" />
-          Created {formatDate(project.createdAt)}
-        </span>
-        <Link
-          href={`/teams/${teamId}/projects/${project.id}`}
-          className="inline-flex items-center gap-1 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:brightness-95"
-        >
-          Open project
-          <ArrowRight className="h-4 w-4" />
-        </Link>
-      </div>
-    </article>
+        <div className="mt-auto flex items-center justify-between gap-2 border-t border-border pt-3 text-xs text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5">
+            {project.creator?.avatarUrl ? (
+              <img
+                src={project.creator.avatarUrl}
+                alt={project.creator.name ?? project.creator.email ?? "Project creator"}
+                className="h-5 w-5 rounded-full object-cover"
+              />
+            ) : (
+              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-foreground">
+                {creatorInitial(project)}
+              </span>
+            )}
+            <span className="truncate">{project.creator?.name ?? project.creator?.email ?? "Unknown creator"}</span>
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <CalendarClock className="h-3.5 w-3.5" />
+            {formatDate(project.createdAt)}
+          </span>
+        </div>
+      </article>
+    </Link>
   );
 }

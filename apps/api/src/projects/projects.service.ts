@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { ProjectStatus, TaskStatus, type Project } from "@prisma/client";
-import type { DeleteResult, ProjectItem, ProjectWithStatsResponse } from "@repo/types";
+import type { DeleteResult, ProjectItem, ProjectWithStatsResponse, UserSummary } from "@repo/types";
 
 import { PrismaService } from "../prisma/prisma.service";
 
@@ -11,21 +11,68 @@ import type { UpdateProjectDto } from "./dto/update-project.dto";
 export class ProjectsService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private toProjectItem(
+    project: Project & {
+      team?: {
+        owner?: UserSummary | null;
+      };
+    }
+  ): ProjectItem {
+    const { team, ...baseProject } = project;
+
+    return {
+      ...baseProject,
+      creator: team?.owner ?? null
+    };
+  }
+
   async listProjects(teamId: string): Promise<ProjectItem[]> {
-    return this.prisma.project.findMany({
+    const projects = await this.prisma.project.findMany({
       where: { teamId },
+      include: {
+        team: {
+          select: {
+            owner: {
+              select: {
+                id: true,
+                email: true,
+                name: true,
+                avatarUrl: true
+              }
+            }
+          }
+        }
+      },
       orderBy: { createdAt: "desc" }
     });
+
+    return projects.map((project) => this.toProjectItem(project));
   }
 
   async createProject(teamId: string, dto: CreateProjectDto): Promise<ProjectItem> {
-    return this.prisma.project.create({
+    const project = await this.prisma.project.create({
       data: {
         teamId,
         name: dto.name,
         description: dto.description
+      },
+      include: {
+        team: {
+          select: {
+            owner: {
+              select: {
+                id: true,
+                email: true,
+                name: true,
+                avatarUrl: true
+              }
+            }
+          }
+        }
       }
     });
+
+    return this.toProjectItem(project);
   }
 
   async getProject(teamId: string, projectId: string): Promise<ProjectItem> {
@@ -33,6 +80,20 @@ export class ProjectsService {
       where: {
         id: projectId,
         teamId
+      },
+      include: {
+        team: {
+          select: {
+            owner: {
+              select: {
+                id: true,
+                email: true,
+                name: true,
+                avatarUrl: true
+              }
+            }
+          }
+        }
       }
     });
 
@@ -40,19 +101,35 @@ export class ProjectsService {
       throw new NotFoundException("Project not found");
     }
 
-    return project;
+    return this.toProjectItem(project);
   }
 
   async updateProject(teamId: string, projectId: string, dto: UpdateProjectDto): Promise<ProjectItem> {
     await this.getProject(teamId, projectId);
 
-    return this.prisma.project.update({
+    const project = await this.prisma.project.update({
       where: { id: projectId },
       data: {
         name: dto.name,
         description: dto.description
+      },
+      include: {
+        team: {
+          select: {
+            owner: {
+              select: {
+                id: true,
+                email: true,
+                name: true,
+                avatarUrl: true
+              }
+            }
+          }
+        }
       }
     });
+
+    return this.toProjectItem(project);
   }
 
   async deleteProject(teamId: string, projectId: string): Promise<DeleteResult> {

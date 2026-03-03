@@ -4,6 +4,7 @@ import type { ProjectItem } from "@repo/types";
 
 import { getProjects } from "@/actions/project.actions";
 import { PageHeader } from "@/components/layout/page-header";
+import { ProjectOverviewCard } from "@/components/projects/project-overview-card";
 import { Card } from "@/components/ui/card";
 
 export default async function TeamProjectsPage({
@@ -29,16 +30,15 @@ export default async function TeamProjectsPage({
         }
       />
 
-      <div className="grid gap-3">
-        {projects.map((project) => (
-          <Link key={project.id} href={`/teams/${teamId}/projects/${project.id}`}>
-            <Card className="transition hover:-translate-y-0.5 hover:border-primary">
-              <p className="font-semibold">{project.name}</p>
-              <p className="text-sm text-muted-foreground">{project.description ?? "No description"}</p>
-            </Card>
-          </Link>
-        ))}
-      </div>
+      {projects.length > 0 ? (
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {projects.map((project) => (
+            <ProjectOverviewCard key={project.id} teamId={teamId} project={project} />
+          ))}
+        </div>
+      ) : (
+        <Card className="text-sm text-muted-foreground">No projects yet. Create your first project to get started.</Card>
+      )}
     </main>
   );
 }
