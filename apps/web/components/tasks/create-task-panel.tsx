@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { UserSummary } from "@repo/types";
 
 import { CreateTaskForm } from "@/components/tasks/create-task-form";
@@ -21,6 +21,12 @@ export function CreateTaskPanel({
   initialOpen?: boolean;
 }) {
   const [open, setOpen] = useState(initialOpen);
+
+  useEffect(() => {
+    if (initialOpen) {
+      setOpen(true);
+    }
+  }, [initialOpen]);
 
   return (
     <>

@@ -10,25 +10,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Kanban, KanbanBoard, KanbanColumn, KanbanItem } from "@/components/ui/kanban";
+import {
+  formatTaskDueDate,
+  isTaskOverdue,
+  TaskAssigneePill,
+  TaskCardContent,
+  taskPriorityLabel,
+  taskPriorityTone
+} from "@/components/tasks/task-card-content";
 import { groupTasksByStatus, taskStatuses, type TaskBoardItem } from "./task-board.utils";
-
-function AssigneePill({ task }: { task: TaskBoardItem }) {
-  const label = task.assignee?.name ?? task.assignee?.email ?? "Unassigned";
-  const initial = label.slice(0, 1).toUpperCase();
-
-  return (
-    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-      {task.assignee?.avatarUrl ? (
-        <img alt={label} className="h-5 w-5 rounded-full object-cover" src={task.assignee.avatarUrl} />
-      ) : (
-        <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-muted font-semibold text-foreground">
-          {initial}
-        </span>
-      )}
-      <span className="truncate">{label}</span>
-    </div>
-  );
-}
 
 function isTaskStatus(status: string): status is TaskBoardItem["status"] {
   return taskStatuses.includes(status as TaskBoardItem["status"]);
@@ -39,49 +29,6 @@ function statusLabel(status: TaskBoardItem["status"]): string {
   if (status === "IN_REVIEW") return "In Review";
   if (status === "TODO") return "Todo";
   return "Done";
-}
-
-function formatDueDate(value: TaskBoardItem["dueDate"]): string {
-  if (!value) {
-    return "No due date";
-  }
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return "No due date";
-  }
-
-  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(date);
-}
-
-function isOverdue(value: TaskBoardItem["dueDate"]): boolean {
-  if (!value) {
-    return false;
-  }
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return false;
-  }
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return date.getTime() < today.getTime();
-}
-
-function priorityLabel(priority: TaskBoardItem["priority"]): string {
-  return priority.charAt(0) + priority.slice(1).toLowerCase();
-}
-
-function priorityTone(priority: TaskBoardItem["priority"]): string {
-  if (priority === "URGENT") {
-    return "border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-300";
-  }
-  if (priority === "HIGH") {
-    return "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300";
-  }
-  if (priority === "LOW") {
-    return "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300";
-  }
-  return "border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300";
 }
 
 function statusTone(status: TaskBoardItem["status"]): string {
@@ -263,14 +210,7 @@ export function TaskBoard({
                       href={`${basePath}/tasks/${task.id}`}
                       className="rounded-md border border-border bg-popover p-3 text-card-foreground transition-colors hover:bg-accent"
                     >
-                      <p className="line-clamp-2 text-sm font-medium">{task.title}</p>
-                      <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
-                        <Badge className={priorityTone(task.priority)}>{priorityLabel(task.priority)}</Badge>
-                        <span className={isOverdue(task.dueDate) ? "text-destructive" : undefined}>{formatDueDate(task.dueDate)}</span>
-                      </div>
-                      <div className="mt-2">
-                        <AssigneePill task={task} />
-                      </div>
+                      <TaskCardContent task={task} />
                     </Link>
                   </KanbanItem>
                 ))}
@@ -302,12 +242,12 @@ export function TaskBoard({
                     <Badge className={statusTone(task.status)}>{statusLabel(task.status)}</Badge>
                   </td>
                   <td className="px-4 py-3">
-                    <Badge className={priorityTone(task.priority)}>{priorityLabel(task.priority)}</Badge>
+                    <Badge className={taskPriorityTone(task.priority)}>{taskPriorityLabel(task.priority)}</Badge>
                   </td>
                   <td className="px-4 py-3">
-                    <AssigneePill task={task} />
+                    <TaskAssigneePill task={task} />
                   </td>
-                  <td className={`px-4 py-3 ${isOverdue(task.dueDate) ? "text-destructive" : ""}`}>{formatDueDate(task.dueDate)}</td>
+                  <td className={`px-4 py-3 ${isTaskOverdue(task.dueDate) ? "text-destructive" : ""}`}>{formatTaskDueDate(task.dueDate)}</td>
                 </tr>
               ))}
             </tbody>
