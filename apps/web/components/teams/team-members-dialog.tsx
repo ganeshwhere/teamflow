@@ -4,34 +4,11 @@ import { useMemo, useState } from "react";
 import { Search, Users } from "lucide-react";
 import type { TeamMemberItem } from "@repo/types";
 
+import { TeamMemberRow } from "@/components/teams/team-member-row";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
-
-function memberInitials(value: string): string {
-  const words = value.trim().split(/\s+/).filter(Boolean);
-  if (words.length === 0) {
-    return "U";
-  }
-  if (words.length === 1) {
-    return words[0].slice(0, 2).toUpperCase();
-  }
-  return `${words[0][0] ?? ""}${words[1][0] ?? ""}`.toUpperCase();
-}
-
-function formatJoinedAt(value: TeamMemberItem["joinedAt"]): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return "Unknown";
-  }
-
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric"
-  }).format(date);
-}
 
 export function TeamMembersDialog({ members }: { members: TeamMemberItem[] }) {
   const [open, setOpen] = useState(false);
@@ -88,25 +65,7 @@ export function TeamMembersDialog({ members }: { members: TeamMemberItem[] }) {
 
           <div className="grid min-h-0 gap-2 overflow-y-auto pr-1">
             {filteredMembers.length > 0 ? (
-              filteredMembers.map((member) => {
-                const displayName = member.user.name ?? member.user.email;
-
-                return (
-                  <div key={member.id} className="flex items-center gap-2 rounded-lg border border-border bg-popover p-2.5">
-                    <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold text-foreground">
-                      {memberInitials(displayName)}
-                    </span>
-
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-foreground">{displayName}</p>
-                      <p className="truncate text-xs text-muted-foreground">{member.user.email}</p>
-                      <p className="truncate text-[11px] text-muted-foreground">Joined {formatJoinedAt(member.joinedAt)}</p>
-                    </div>
-
-                    <Badge>{member.role}</Badge>
-                  </div>
-                );
-              })
+              filteredMembers.map((member) => <TeamMemberRow key={member.id} member={member} />)
             ) : (
               <div className="rounded-lg border border-dashed border-border bg-popover p-4 text-sm text-muted-foreground">
                 No members match your search.
