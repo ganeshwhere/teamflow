@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
-import type { TaskStatusValue } from "@repo/types";
+import type { ProjectStatusValue, TaskStatusValue } from "@repo/types";
 
 import { updateTaskStatus } from "@/actions/task.actions";
+import { projectStatusLabel, projectStatusTone } from "@/components/projects/project-meta";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -74,11 +75,13 @@ function resolveSourceStatus(
 export function TaskBoard({
   tasks,
   basePath,
-  projectId
+  projectId,
+  projectStatus
 }: {
   tasks: TaskBoardItem[];
   basePath: string;
   projectId: string;
+  projectStatus?: ProjectStatusValue;
 }) {
   const router = useRouter();
   const [view, setView] = useState<"kanban" | "table">("kanban");
@@ -89,6 +92,9 @@ export function TaskBoard({
   const dragSourceStatusRef = useRef<TaskBoardItem["status"] | null>(null);
   const doneCount = tasks.filter((task) => task.status === "DONE").length;
 
+  const normalizedProjectStatus = projectStatusLabel(projectStatus);
+  const projectStatusClassName = projectStatusTone(projectStatus);
+
   useEffect(() => {
     setKanbanColumns(grouped);
   }, [grouped]);
@@ -96,12 +102,15 @@ export function TaskBoard({
   return (
     <section className="grid gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="inline-flex items-center gap-2 rounded-lg border border-border bg-card/70 px-3 py-2">
-          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Board</span>
-          <span className="h-3.5 w-px bg-border" />
-          <p className="text-xs text-muted-foreground">
-            {tasks.length} total {tasks.length === 1 ? "task" : "tasks"} • {doneCount} done
-          </p>
+        <div className="inline-flex items-center gap-2">
+          <div className="inline-flex items-center gap-2 rounded-lg border border-border bg-card/70 px-3 py-2">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Board</span>
+            <span className="h-3.5 w-px bg-border" />
+            <p className="whitespace-nowrap text-xs text-muted-foreground">
+              {tasks.length} total {tasks.length === 1 ? "task" : "tasks"} • {doneCount} done
+            </p>
+          </div>
+          <Badge className={`${projectStatusClassName} shrink-0`}>{normalizedProjectStatus}</Badge>
         </div>
         <div className="flex items-center gap-2 rounded-lg border border-border bg-card/70 p-1">
           <Button

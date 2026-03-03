@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { Suspense } from "react";
+import { ListTodo } from "lucide-react";
 import type { ProjectWithStatsResponse, TaskItem, UserSummary } from "@repo/types";
 
 import { getProject } from "@/actions/project.actions";
@@ -8,7 +10,6 @@ import { PageHeader } from "@/components/layout/page-header";
 import { SectionSkeleton } from "@/components/layout/section-skeleton";
 import { CreateTaskPanel } from "@/components/tasks/create-task-panel";
 import { TaskBoard } from "@/components/tasks/task-board";
-import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 
 async function ProjectOverview({
@@ -46,7 +47,13 @@ async function ProjectOverview({
         description={payload.project.description ?? "No description provided."}
         actions={
           <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card/70 p-1.5">
-            <Badge>{payload.project.status ?? "ACTIVE"}</Badge>
+            <Link
+              href={`/teams/${teamId}/projects/${projectId}/tasks`}
+              className="inline-flex h-10 items-center gap-1 rounded-md border border-border bg-popover px-3 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+            >
+              <ListTodo className="h-4 w-4" />
+              Task List
+            </Link>
             <CreateTaskPanel
               projectId={projectId}
               assignees={assignees}
@@ -58,7 +65,12 @@ async function ProjectOverview({
         }
       />
 
-      <TaskBoard tasks={tasks} basePath={`/teams/${teamId}/projects/${projectId}`} projectId={projectId} />
+      <TaskBoard
+        tasks={tasks}
+        basePath={`/teams/${teamId}/projects/${projectId}`}
+        projectId={projectId}
+        projectStatus={payload.project.status}
+      />
     </div>
   );
 }
