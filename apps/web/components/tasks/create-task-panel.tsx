@@ -32,7 +32,6 @@ export function CreateTaskPanel({
         onClose={() => setOpen(false)}
         title="Add Task"
         description="Create and assign a task without leaving the board."
-        variant="sheet"
       >
         <CreateTaskForm projectId={projectId} assignees={assignees} onSuccess={() => setOpen(false)} />
       </Modal>
