@@ -5,13 +5,14 @@ import { signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import {
   Bell,
+  FolderKanban,
   House,
   LogOut,
   MoreVertical,
   Settings,
   UserRound,
   Users,
-  X
+  X,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { memo, useEffect, useRef, useState } from "react";
@@ -48,11 +49,18 @@ const NAV_ITEMS: NavItem[] = [
   { id: "main-dashboard", href: "/dashboard", label: "Home", icon: House },
   { id: "main-teams", href: "/teams", label: "Teams", icon: Users, activeMatch: "prefix" },
   {
+    id: "main-projects",
+    href: "/projects",
+    label: "Projects",
+    icon: FolderKanban,
+    activeMatch: "prefix",
+  },
+  {
     id: "main-notifications",
     href: "/dashboard/notifications",
     label: "Notifications",
-    icon: Bell
-  }
+    icon: Bell,
+  },
 ];
 
 const SidebarLink = memo(function SidebarLink({ item, active, onNavigate }: SidebarLinkProps) {
@@ -68,7 +76,7 @@ const SidebarLink = memo(function SidebarLink({ item, active, onNavigate }: Side
           "flex min-w-0 flex-1 items-center gap-2.5 rounded-lg px-2.5 py-2 text-[0.92rem] transition-colors",
           active
             ? "bg-sidebar-accent text-sidebar-foreground"
-            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
         )}
       >
         <Icon className="h-4 w-4 shrink-0" />
@@ -80,7 +88,11 @@ const SidebarLink = memo(function SidebarLink({ item, active, onNavigate }: Side
 
 SidebarLink.displayName = "SidebarLink";
 
-function isPathActive(pathname: string, href: string, mode: NavItem["activeMatch"] = "exact"): boolean {
+function isPathActive(
+  pathname: string,
+  href: string,
+  mode: NavItem["activeMatch"] = "exact",
+): boolean {
   if (mode === "none") {
     return false;
   }
@@ -109,7 +121,7 @@ function getUserInitials(user?: SidebarUser): string {
 function SidebarContent({
   pathname,
   onNavigate,
-  user
+  user,
 }: {
   pathname: string;
   onNavigate?: () => void;
@@ -248,7 +260,7 @@ export function DashboardSidebar({ mobileOpen, onMobileClose, user }: DashboardS
       <div
         className={cn(
           "fixed inset-0 z-50 md:hidden",
-          mobileOpen ? "pointer-events-auto" : "pointer-events-none"
+          mobileOpen ? "pointer-events-auto" : "pointer-events-none",
         )}
         aria-hidden={!mobileOpen}
       >
@@ -257,18 +269,22 @@ export function DashboardSidebar({ mobileOpen, onMobileClose, user }: DashboardS
           aria-label="Close sidebar"
           className={cn(
             "absolute inset-0 bg-black/45 transition-opacity",
-            mobileOpen ? "opacity-100" : "opacity-0"
+            mobileOpen ? "opacity-100" : "opacity-0",
           )}
           onClick={onMobileClose}
         />
         <aside
           className={cn(
             "absolute left-0 top-0 h-full w-[90%] max-w-sm border-r border-sidebar-border bg-sidebar text-sidebar-foreground shadow-2xl transition-transform",
-            mobileOpen ? "translate-x-0" : "-translate-x-full"
+            mobileOpen ? "translate-x-0" : "-translate-x-full",
           )}
         >
           <div className="flex items-center justify-end border-b border-sidebar-border px-3 py-2">
-            <Button variant="ghost" className="h-8 w-8 p-0 text-sidebar-foreground/70 hover:bg-sidebar-accent" onClick={onMobileClose}>
+            <Button
+              variant="ghost"
+              className="h-8 w-8 p-0 text-sidebar-foreground/70 hover:bg-sidebar-accent"
+              onClick={onMobileClose}
+            >
               <X className="h-4 w-4" />
             </Button>
           </div>

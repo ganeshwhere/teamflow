@@ -13,6 +13,8 @@ describe("route access guards", () => {
   it("identifies protected routes", () => {
     expect(isProtectedPath("/dashboard")).toBe(true);
     expect(isProtectedPath("/teams/team_1")).toBe(true);
+    expect(isProtectedPath("/projects")).toBe(true);
+    expect(isProtectedPath("/projects/project_1")).toBe(true);
     expect(isProtectedPath("/invite")).toBe(true);
     expect(isProtectedPath("/login")).toBe(false);
   });
@@ -20,6 +22,7 @@ describe("route access guards", () => {
   it("redirects only when protected and unauthenticated", () => {
     expect(shouldRedirectToLogin("/dashboard", false)).toBe(true);
     expect(shouldRedirectToLogin("/teams/team_1", false)).toBe(true);
+    expect(shouldRedirectToLogin("/projects", false)).toBe(true);
     expect(shouldRedirectToLogin("/login", false)).toBe(false);
     expect(shouldRedirectToLogin("/api/auth/session", false)).toBe(false);
     expect(shouldRedirectToLogin("/dashboard", true)).toBe(false);
