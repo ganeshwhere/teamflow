@@ -32,9 +32,10 @@ function applyTheme(theme: Theme): void {
 type ThemeToggleProps = {
   className?: string;
   showLabel?: boolean;
+  iconClassName?: string;
 };
 
-export function ThemeToggle({ className, showLabel = false }: ThemeToggleProps) {
+export function ThemeToggle({ className, showLabel = false, iconClassName }: ThemeToggleProps) {
   const [theme, setTheme] = useState<Theme>("light");
   const [mounted, setMounted] = useState(false);
 
@@ -45,19 +46,23 @@ export function ThemeToggle({ className, showLabel = false }: ThemeToggleProps) 
     setMounted(true);
   }, []);
 
-  if (!mounted) {
-    return null;
-  }
+  const resolvedTheme: Theme = mounted ? theme : "light";
+  const Icon = resolvedTheme === "dark" ? Sun : Moon;
+  const iconSizeClass = showLabel ? "h-4 w-4" : "h-5 w-5";
 
   return (
     <Button
-      aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+      aria-label={`Switch to ${resolvedTheme === "dark" ? "light" : "dark"} mode`}
       className={cn(
-        showLabel ? "h-9 rounded-md px-3" : "h-9 w-9 rounded-full p-0",
+        showLabel ? "h-9 rounded-md px-3" : "h-10 w-10 rounded-full p-0",
         "gap-2",
         className
       )}
       onClick={() => {
+        if (!mounted) {
+          return;
+        }
+
         const nextTheme: Theme = theme === "dark" ? "light" : "dark";
         applyTheme(nextTheme);
         window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
@@ -65,9 +70,10 @@ export function ThemeToggle({ className, showLabel = false }: ThemeToggleProps) 
       }}
       type="button"
       variant="ghost"
+      disabled={!mounted}
     >
-      {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-      {showLabel ? <span className="text-xs font-semibold">{theme === "dark" ? "Dark" : "Light"}</span> : null}
+      <Icon className={cn(iconSizeClass, iconClassName)} strokeWidth={2.4} />
+      {showLabel ? <span className="text-xs font-semibold">{resolvedTheme === "dark" ? "Dark" : "Light"}</span> : null}
     </Button>
   );
 }
