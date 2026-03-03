@@ -1,9 +1,9 @@
-import type { TaskStatus } from "./task";
+import type { TaskStatus } from "./task.js";
 
 export enum ProjectStatus {
   ACTIVE = "ACTIVE",
   COMPLETED = "COMPLETED",
-  ARCHIVED = "ARCHIVED"
+  ARCHIVED = "ARCHIVED",
 }
 
 export interface Project {

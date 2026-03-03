@@ -1,6 +1,6 @@
-import type { Priority, TaskStatus } from "./task";
-import type { ProjectStatus } from "./project";
-import type { TeamRole } from "./team";
+import type { Priority, TaskStatus } from "./task.js";
+import type { ProjectStatus } from "./project.js";
+import type { TeamRole } from "./team.js";
 
 export type DateValue = Date | string;
 export type TeamRoleValue = `${TeamRole}`;

@@ -1,5 +1,5 @@
-import { IsEmail, IsOptional, IsString, MinLength } from "class-validator";
-import type { VerifyTokenPayload } from "@repo/types";
+import { IsEmail, IsIn, IsOptional, IsString, MinLength } from "class-validator";
+import { AUTH_PROVIDERS, type VerifyTokenPayload } from "@repo/types";
 
 export class VerifyTokenDto implements VerifyTokenPayload {
   @IsEmail()
@@ -15,7 +15,8 @@ export class VerifyTokenDto implements VerifyTokenPayload {
   avatarUrl?: string;
 
   @IsString()
-  provider!: string;
+  @IsIn(AUTH_PROVIDERS)
+  provider!: VerifyTokenPayload["provider"];
 
   @IsString()
   providerId!: string;

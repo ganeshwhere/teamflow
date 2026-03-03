@@ -1,11 +1,21 @@
 import type { Account, Profile, User } from "next-auth";
-import type { VerifyTokenPayload } from "@repo/types";
+import { AUTH_PROVIDERS, type AuthProvider, type VerifyTokenPayload } from "@repo/types";
+
+const AUTH_PROVIDER_SET = new Set<AuthProvider>(AUTH_PROVIDERS);
+
+function resolveAuthProvider(value?: string): AuthProvider | null {
+  if (!value || !AUTH_PROVIDER_SET.has(value as AuthProvider)) {
+    return null;
+  }
+
+  return value as AuthProvider;
+}
 
 export function buildVerifyTokenPayload(args: {
   account?: Account | null;
   profile?: Profile;
   user?: User;
-  existingProvider?: string;
+  existingProvider?: AuthProvider;
 }): VerifyTokenPayload | null {
   const { account, profile, user, existingProvider } = args;
 
@@ -13,7 +23,11 @@ export function buildVerifyTokenPayload(args: {
     return null;
   }
 
-  const provider = account?.provider ?? existingProvider ?? "github";
+  const provider = resolveAuthProvider(account?.provider ?? existingProvider);
+  if (!provider) {
+    return null;
+  }
+
   const providerId =
     account?.providerAccountId ??
     (typeof profile?.sub === "string" ? profile.sub : undefined) ??
@@ -24,6 +38,6 @@ export function buildVerifyTokenPayload(args: {
     name: user.name,
     avatarUrl: user.image,
     provider,
-    providerId
+    providerId,
   };
 }

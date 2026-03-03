@@ -7,13 +7,13 @@ describe("buildVerifyTokenPayload", () => {
     const payload = buildVerifyTokenPayload({
       account: {
         provider: "google",
-        providerAccountId: "abc123"
+        providerAccountId: "abc123",
       } as never,
       user: {
         email: "demo@teamflow.dev",
         name: "Demo",
-        image: "https://example.com/avatar.png"
-      } as never
+        image: "https://example.com/avatar.png",
+      } as never,
     });
 
     expect(payload).toEqual({
@@ -21,7 +21,21 @@ describe("buildVerifyTokenPayload", () => {
       name: "Demo",
       avatarUrl: "https://example.com/avatar.png",
       provider: "google",
-      providerId: "abc123"
+      providerId: "abc123",
     });
+  });
+
+  it("returns null when provider is unsupported", () => {
+    const payload = buildVerifyTokenPayload({
+      account: {
+        provider: "credentials",
+        providerAccountId: "abc123",
+      } as never,
+      user: {
+        email: "demo@teamflow.dev",
+      } as never,
+    });
+
+    expect(payload).toBeNull();
   });
 });

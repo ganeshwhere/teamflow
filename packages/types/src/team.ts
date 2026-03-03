@@ -1,9 +1,9 @@
-import type { User } from "./user";
+import type { User } from "./user.js";
 
 export enum TeamRole {
   OWNER = "OWNER",
   ADMIN = "ADMIN",
-  MEMBER = "MEMBER"
+  MEMBER = "MEMBER",
 }
 
 export interface Team {
