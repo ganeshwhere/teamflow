@@ -3,17 +3,7 @@
 import type { TeamMemberItem } from "@repo/types";
 
 import { Badge } from "@/components/ui/badge";
-
-function memberInitials(value: string): string {
-  const words = value.trim().split(/\s+/).filter(Boolean);
-  if (words.length === 0) {
-    return "U";
-  }
-  if (words.length === 1) {
-    return words[0].slice(0, 2).toUpperCase();
-  }
-  return `${words[0][0] ?? ""}${words[1][0] ?? ""}`.toUpperCase();
-}
+import { UserAvatar } from "@/components/ui/user-avatar";
 
 function formatJoinedAt(value: TeamMemberItem["joinedAt"]): string {
   const date = new Date(value);
@@ -33,17 +23,12 @@ export function TeamMemberRow({ member }: { member: TeamMemberItem }) {
 
   return (
     <div className="flex items-center gap-3 rounded-lg border border-border bg-popover p-3">
-      {member.user.avatarUrl ? (
-        <img
-          src={member.user.avatarUrl}
-          alt={displayName}
-          className="h-10 w-10 shrink-0 rounded-full object-cover"
-        />
-      ) : (
-        <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-semibold text-foreground">
-          {memberInitials(displayName)}
-        </span>
-      )}
+      <UserAvatar
+        name={member.user.name}
+        email={member.user.email}
+        avatarUrl={member.user.avatarUrl}
+        className="h-10 w-10 text-sm"
+      />
 
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold text-foreground">{displayName}</p>

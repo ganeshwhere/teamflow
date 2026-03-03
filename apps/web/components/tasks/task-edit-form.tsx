@@ -5,6 +5,7 @@ import { useOptimistic, useState, useTransition } from "react";
 import type { PriorityValue, TaskStatusValue, UserSummary } from "@repo/types";
 
 import { updateTask } from "@/actions/task.actions";
+import { taskPriorityLabel, taskStatusLabel } from "@/components/tasks/task-meta";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,17 +24,6 @@ type EditableTask = {
 
 const statusOptions: TaskStatusValue[] = ["TODO", "IN_PROGRESS", "IN_REVIEW", "DONE"];
 const priorityOptions: PriorityValue[] = ["LOW", "MEDIUM", "HIGH", "URGENT"];
-
-function formatStatusLabel(status: TaskStatusValue): string {
-  if (status === "IN_PROGRESS") return "In Progress";
-  if (status === "IN_REVIEW") return "In Review";
-  if (status === "TODO") return "Todo";
-  return "Done";
-}
-
-function formatPriorityLabel(priority: PriorityValue): string {
-  return priority.charAt(0) + priority.slice(1).toLowerCase();
-}
 
 export function TaskEditForm({
   projectId,
@@ -101,8 +91,8 @@ export function TaskEditForm({
       <div className="rounded-lg border border-border bg-muted/40 p-4">
         <p className="text-sm font-semibold text-foreground">{optimisticTask.title}</p>
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <Badge className="bg-muted text-muted-foreground">{formatStatusLabel(optimisticTask.status)}</Badge>
-          <Badge className="bg-muted text-muted-foreground">{formatPriorityLabel(optimisticTask.priority)}</Badge>
+          <Badge className="bg-muted text-muted-foreground">{taskStatusLabel(optimisticTask.status)}</Badge>
+          <Badge className="bg-muted text-muted-foreground">{taskPriorityLabel(optimisticTask.priority)}</Badge>
           <Badge className="bg-muted text-muted-foreground">
             {optimisticTask.assigneeId ? "Assigned" : "Unassigned"}
           </Badge>
@@ -140,7 +130,7 @@ export function TaskEditForm({
           <Select id="task-status" value={status} onChange={(event) => setStatus(event.target.value as EditableTask["status"])}>
             {statusOptions.map((option) => (
               <option key={option} value={option}>
-                {formatStatusLabel(option)}
+                {taskStatusLabel(option)}
               </option>
             ))}
           </Select>
@@ -156,7 +146,7 @@ export function TaskEditForm({
           <Select id="task-priority" value={priority} onChange={(event) => setPriority(event.target.value as EditableTask["priority"])}>
             {priorityOptions.map((option) => (
               <option key={option} value={option}>
-                {formatPriorityLabel(option)}
+                {taskPriorityLabel(option)}
               </option>
             ))}
           </Select>

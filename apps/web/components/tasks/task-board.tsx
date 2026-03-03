@@ -14,34 +14,18 @@ import {
   formatTaskDueDate,
   isTaskOverdue,
   TaskAssigneePill,
-  TaskCardContent,
-  taskPriorityLabel,
-  taskPriorityTone
+  TaskCardContent
 } from "@/components/tasks/task-card-content";
+import {
+  taskPriorityLabel,
+  taskPriorityTone,
+  taskStatusLabel,
+  taskStatusTone
+} from "@/components/tasks/task-meta";
 import { groupTasksByStatus, taskStatuses, type TaskBoardItem } from "./task-board.utils";
 
 function isTaskStatus(status: string): status is TaskBoardItem["status"] {
   return taskStatuses.includes(status as TaskBoardItem["status"]);
-}
-
-function statusLabel(status: TaskBoardItem["status"]): string {
-  if (status === "IN_PROGRESS") return "In Progress";
-  if (status === "IN_REVIEW") return "In Review";
-  if (status === "TODO") return "Todo";
-  return "Done";
-}
-
-function statusTone(status: TaskBoardItem["status"]): string {
-  if (status === "DONE") {
-    return "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300";
-  }
-  if (status === "IN_PROGRESS") {
-    return "border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300";
-  }
-  if (status === "IN_REVIEW") {
-    return "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300";
-  }
-  return "border-zinc-500/30 bg-zinc-500/10 text-zinc-700 dark:text-zinc-300";
 }
 
 function resolveDestinationStatus(
@@ -194,7 +178,7 @@ export function TaskBoard({
                 className="h-fit w-[280px] min-h-[260px] border border-border bg-card"
               >
                 <div className="mb-1 flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-foreground">{statusLabel(status)}</h3>
+                  <h3 className="text-sm font-semibold text-foreground">{taskStatusLabel(status)}</h3>
                   <span className="rounded-full border border-border bg-popover px-2 py-0.5 text-[11px] text-muted-foreground">
                     {kanbanColumns[status].length}
                   </span>
@@ -239,7 +223,7 @@ export function TaskBoard({
                     </Link>
                   </td>
                   <td className="px-4 py-3">
-                    <Badge className={statusTone(task.status)}>{statusLabel(task.status)}</Badge>
+                    <Badge className={taskStatusTone(task.status)}>{taskStatusLabel(task.status)}</Badge>
                   </td>
                   <td className="px-4 py-3">
                     <Badge className={taskPriorityTone(task.priority)}>{taskPriorityLabel(task.priority)}</Badge>

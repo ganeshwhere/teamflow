@@ -7,19 +7,15 @@ import { getTeam } from "@/actions/team.actions";
 import { PageHeader } from "@/components/layout/page-header";
 import { TaskCommentBox } from "@/components/tasks/task-comment-box";
 import { TaskEditForm } from "@/components/tasks/task-edit-form";
+import {
+  taskPriorityLabel,
+  taskPriorityTone,
+  taskStatusLabel,
+  taskStatusTone
+} from "@/components/tasks/task-meta";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-
-function formatStatus(status: TaskDetail["status"]): string {
-  if (status === "IN_PROGRESS") return "In Progress";
-  if (status === "IN_REVIEW") return "In Review";
-  if (status === "TODO") return "Todo";
-  return "Done";
-}
-
-function formatPriority(priority: TaskDetail["priority"]): string {
-  return priority.charAt(0) + priority.slice(1).toLowerCase();
-}
+import { UserAvatar } from "@/components/ui/user-avatar";
 
 function formatDate(value: TaskDetail["dueDate"]): string {
   if (!value) {
@@ -74,20 +70,6 @@ function isOverdue(value: TaskDetail["dueDate"]): boolean {
   today.setHours(0, 0, 0, 0);
 
   return dueDate.getTime() < today.getTime();
-}
-
-function statusTone(status: TaskDetail["status"]): string {
-  if (status === "DONE") return "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300";
-  if (status === "IN_PROGRESS") return "border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300";
-  if (status === "IN_REVIEW") return "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300";
-  return "border-zinc-500/30 bg-zinc-500/10 text-zinc-700 dark:text-zinc-300";
-}
-
-function priorityTone(priority: TaskDetail["priority"]): string {
-  if (priority === "URGENT") return "border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-300";
-  if (priority === "HIGH") return "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300";
-  if (priority === "LOW") return "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300";
-  return "border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300";
 }
 
 export default async function TaskDetailPage({
@@ -186,17 +168,12 @@ export default async function TaskDetailPage({
               </div>
 
               <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                {task.creator?.avatarUrl ? (
-                  <img
-                    src={task.creator.avatarUrl}
-                    alt={task.creator.name ?? task.creator.email ?? "User"}
-                    className="h-7 w-7 rounded-full object-cover"
-                  />
-                ) : (
-                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-muted font-semibold text-foreground">
-                    {(task.creator?.name ?? task.creator?.email ?? "U").slice(0, 1).toUpperCase()}
-                  </span>
-                )}
+                <UserAvatar
+                  name={task.creator?.name}
+                  email={task.creator?.email}
+                  avatarUrl={task.creator?.avatarUrl}
+                  className="h-7 w-7 text-xs"
+                />
                 <p>
                   {(task.creator?.name ?? task.creator?.email ?? "A member")} created this task • {formatRelativeTime(task.createdAt)}
                 </p>
@@ -210,11 +187,11 @@ export default async function TaskDetailPage({
             <div className="divide-y divide-border">
               <div className="grid gap-1 py-3 first:pt-0">
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Priority</p>
-                <Badge className={`${priorityTone(task.priority)} w-fit`}>{formatPriority(task.priority)}</Badge>
+                <Badge className={`${taskPriorityTone(task.priority)} w-fit`}>{taskPriorityLabel(task.priority)}</Badge>
               </div>
               <div className="grid gap-1 py-3">
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Status</p>
-                <Badge className={`${statusTone(task.status)} w-fit`}>{formatStatus(task.status)}</Badge>
+                <Badge className={`${taskStatusTone(task.status)} w-fit`}>{taskStatusLabel(task.status)}</Badge>
               </div>
               <div className="grid gap-1 py-3">
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Due Date</p>

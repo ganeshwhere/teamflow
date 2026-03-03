@@ -3,6 +3,7 @@ import { CalendarClock } from "lucide-react";
 import type { ProjectItem } from "@repo/types";
 
 import { Badge } from "@/components/ui/badge";
+import { UserAvatar } from "@/components/ui/user-avatar";
 
 function formatDate(value: ProjectItem["createdAt"]): string {
   const date = new Date(value);
@@ -26,11 +27,6 @@ function statusLabel(status?: string): string {
   return (status ?? "ACTIVE").replaceAll("_", " ");
 }
 
-function creatorInitial(project: ProjectItem): string {
-  const label = project.creator?.name ?? project.creator?.email ?? "U";
-  return label.slice(0, 1).toUpperCase();
-}
-
 export function ProjectOverviewCard({ teamId, project }: { teamId: string; project: ProjectItem }) {
   return (
     <Link
@@ -47,17 +43,12 @@ export function ProjectOverviewCard({ teamId, project }: { teamId: string; proje
 
         <div className="mt-auto flex items-center justify-between gap-2 border-t border-border pt-3 text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-1.5">
-            {project.creator?.avatarUrl ? (
-              <img
-                src={project.creator.avatarUrl}
-                alt={project.creator.name ?? project.creator.email ?? "Project creator"}
-                className="h-5 w-5 rounded-full object-cover"
-              />
-            ) : (
-              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-foreground">
-                {creatorInitial(project)}
-              </span>
-            )}
+            <UserAvatar
+              name={project.creator?.name}
+              email={project.creator?.email}
+              avatarUrl={project.creator?.avatarUrl}
+              className="h-5 w-5 text-[10px]"
+            />
             <span className="truncate">{project.creator?.name ?? project.creator?.email ?? "Unknown creator"}</span>
           </span>
           <span className="inline-flex items-center gap-1">
