@@ -16,10 +16,12 @@ model User {
   providerId    String
   createdAt     DateTime  @default(now())
 
-  ownedTeams    Team[]     @relation("TeamOwner")
-  memberships   TeamMember[]
-  assignedTasks Task[]     @relation("TaskAssignee")
-  createdTasks  Task[]     @relation("TaskCreator")
+  ownedTeams      Team[]               @relation("TeamOwner")
+  memberships     TeamMember[]
+  assignedTasks   Task[]               @relation("TaskAssignee")
+  createdTasks    Task[]               @relation("TaskCreator")
+  projectMessages ProjectChatMessage[] @relation("ProjectChatAuthor")
+  chatMentions    ProjectChatMention[] @relation("ProjectChatMentionedUser")
 
   @@unique([provider, providerId])
 }
@@ -63,9 +65,10 @@ model Project {
   status      ProjectStatus @default(ACTIVE)
   createdAt   DateTime      @default(now())
 
-  teamId String
-  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  tasks  Task[]
+  teamId       String
+  team         Team                @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  tasks        Task[]
+  chatMessages ProjectChatMessage[]
 }
 
 enum ProjectStatus {
@@ -92,6 +95,36 @@ model Task {
 
   creatorId String
   creator   User    @relation("TaskCreator", fields: [creatorId], references: [id])
+}
+
+model ProjectChatMessage {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  authorId String
+  author   User    @relation("ProjectChatAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+
+  mentions ProjectChatMention[]
+
+  @@index([projectId, createdAt])
+}
+
+model ProjectChatMention {
+  id String @id @default(cuid())
+
+  messageId String
+  message   ProjectChatMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User @relation("ProjectChatMentionedUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId])
+  @@index([userId])
 }
 
 enum TaskStatus {

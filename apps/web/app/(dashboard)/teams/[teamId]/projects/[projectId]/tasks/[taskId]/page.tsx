@@ -1,17 +1,19 @@
 import Link from "next/link";
 import { ArrowLeft, CirclePlus, Paperclip } from "lucide-react";
-import type { TaskDetail, UserSummary } from "@repo/types";
+import type { ProjectChatMessage, TaskDetail, UserSummary } from "@repo/types";
 
+import { getProjectChatMessages } from "@/actions/chat.actions";
 import { getTask } from "@/actions/task.actions";
 import { getTeam } from "@/actions/team.actions";
 import { PageHeader } from "@/components/layout/page-header";
 import { TaskCommentBox } from "@/components/tasks/task-comment-box";
 import { TaskEditForm } from "@/components/tasks/task-edit-form";
+import { auth } from "@/lib/auth";
 import {
   taskPriorityLabel,
   taskPriorityTone,
   taskStatusLabel,
-  taskStatusTone
+  taskStatusTone,
 } from "@/components/tasks/task-meta";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -27,7 +29,11 @@ function formatDate(value: TaskDetail["dueDate"]): string {
     return "Not set";
   }
 
-  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(parsed);
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(parsed);
 }
 
 function formatRelativeTime(value: TaskDetail["createdAt"]): string {
@@ -74,17 +80,23 @@ function isOverdue(value: TaskDetail["dueDate"]): boolean {
 
 export default async function TaskDetailPage({
   params,
-  searchParams
+  searchParams,
 }: {
   params: Promise<{ teamId: string; projectId: string; taskId: string }>;
   searchParams: Promise<{ mode?: string }>;
 }) {
   const { teamId, projectId, taskId } = await params;
   const { mode } = await searchParams;
-  const result = await getTask(projectId, taskId);
-  const teamResult = await getTeam(teamId);
+  const [result, teamResult, chatResult, session] = await Promise.all([
+    getTask(projectId, taskId),
+    getTeam(teamId),
+    getProjectChatMessages(projectId),
+    auth(),
+  ]);
   const task: TaskDetail | null = result.data;
   const assignees: UserSummary[] = (teamResult.data?.members ?? []).map((member) => member.user);
+  const chatMessages: ProjectChatMessage[] = chatResult.data ?? [];
+  const currentUserId = session?.user?.id ?? null;
   const taskPath = `/teams/${teamId}/projects/${projectId}/tasks/${taskId}`;
   const isEditing = mode === "edit";
 
@@ -97,7 +109,7 @@ export default async function TaskDetailPage({
   }
 
   return (
-    <main className="mx-auto grid w-full max-w-4xl gap-5">
+    <main className="mx-auto grid w-full max-w-6xl gap-5">
       <PageHeader
         eyebrow="Task"
         title={isEditing ? task.title : "Task Details"}
@@ -134,16 +146,70 @@ export default async function TaskDetailPage({
           <TaskEditForm projectId={projectId} task={task} assignees={assignees} />
         </Card>
       ) : (
-        <section className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
-          <Card className="grid self-start gap-6 p-5">
+        <section className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_430px]">
+          <Card className="grid self-start gap-5 p-5">
             <div className="grid gap-1">
               <p className="text-2xl font-semibold tracking-tight text-foreground">{task.title}</p>
             </div>
 
             <div className="grid gap-1">
               <p className="whitespace-pre-wrap text-sm leading-6 text-foreground">
-                {task.description?.trim() ? task.description : "No task description has been added yet."}
+                {task.description?.trim()
+                  ? task.description
+                  : "No task description has been added yet."}
               </p>
+            </div>
+
+            <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+              <div className="grid gap-1 rounded-lg border border-border/70 bg-popover/40 px-3 py-2">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                  Priority
+                </p>
+                <div className="min-h-7 flex items-center">
+                  <Badge className={`${taskPriorityTone(task.priority)} w-fit`}>
+                    {taskPriorityLabel(task.priority)}
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="grid gap-1 rounded-lg border border-border/70 bg-popover/40 px-3 py-2">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                  Status
+                </p>
+                <div className="min-h-7 flex items-center">
+                  <Badge className={`${taskStatusTone(task.status)} w-fit`}>
+                    {taskStatusLabel(task.status)}
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="grid gap-1 rounded-lg border border-border/70 bg-popover/40 px-3 py-2">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                  Due Date
+                </p>
+                <p
+                  className={`min-h-7 text-sm font-medium ${isOverdue(task.dueDate) ? "text-destructive" : "text-foreground"}`}
+                >
+                  {formatDate(task.dueDate)}
+                </p>
+              </div>
+
+              <div className="grid gap-1 rounded-lg border border-border/70 bg-popover/40 px-3 py-2">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                  Assignee
+                </p>
+                <div className="min-h-7 flex items-center gap-2">
+                  <UserAvatar
+                    name={task.assignee?.name}
+                    email={task.assignee?.email}
+                    avatarUrl={task.assignee?.avatarUrl}
+                    className="h-6 w-6 text-[10px]"
+                  />
+                  <span className="truncate text-sm font-medium text-foreground">
+                    {task.assignee?.name ?? task.assignee?.email ?? "Unassigned"}
+                  </span>
+                </div>
+              </div>
             </div>
 
             <div className="flex items-center justify-between gap-2 text-muted-foreground">
@@ -154,7 +220,10 @@ export default async function TaskDetailPage({
                 <CirclePlus className="h-4 w-4" />
                 Add sub-issues
               </button>
-              <button type="button" className="inline-flex items-center transition-colors hover:text-foreground">
+              <button
+                type="button"
+                className="inline-flex items-center transition-colors hover:text-foreground"
+              >
                 <Paperclip className="h-4 w-4" />
               </button>
             </div>
@@ -162,7 +231,10 @@ export default async function TaskDetailPage({
             <div className="grid gap-4 border-t border-border pt-5">
               <div className="flex items-center justify-between gap-2">
                 <h3 className="text-lg font-semibold text-foreground">Activity</h3>
-                <button type="button" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                <button
+                  type="button"
+                  className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                >
                   Unsubscribe
                 </button>
               </div>
@@ -175,34 +247,26 @@ export default async function TaskDetailPage({
                   className="h-7 w-7 text-xs"
                 />
                 <p>
-                  {(task.creator?.name ?? task.creator?.email ?? "A member")} created this task • {formatRelativeTime(task.createdAt)}
+                  {task.creator?.name ?? task.creator?.email ?? "A member"} created this task •{" "}
+                  {formatRelativeTime(task.createdAt)}
                 </p>
               </div>
-
-              <TaskCommentBox />
             </div>
           </Card>
 
-          <Card className="h-fit self-start p-5">
-            <div className="divide-y divide-border">
-              <div className="grid gap-1 py-3 first:pt-0">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Priority</p>
-                <Badge className={`${taskPriorityTone(task.priority)} w-fit`}>{taskPriorityLabel(task.priority)}</Badge>
+          <Card className="h-fit self-start p-4">
+            <div className="grid gap-3">
+              <div className="flex items-center justify-between gap-2 border-b border-border pb-2">
+                <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                  Chat
+                </h3>
               </div>
-              <div className="grid gap-1 py-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Status</p>
-                <Badge className={`${taskStatusTone(task.status)} w-fit`}>{taskStatusLabel(task.status)}</Badge>
-              </div>
-              <div className="grid gap-1 py-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Due Date</p>
-                <p className={`text-sm ${isOverdue(task.dueDate) ? "text-destructive" : "text-foreground"}`}>
-                  {formatDate(task.dueDate)}
-                </p>
-              </div>
-              <div className="grid gap-1 py-3 last:pb-0">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Assignee</p>
-                <p className="text-sm text-foreground">{task.assignee?.name ?? task.assignee?.email ?? "Unassigned"}</p>
-              </div>
+              <TaskCommentBox
+                projectId={projectId}
+                members={assignees}
+                initialMessages={chatMessages}
+                currentUserId={currentUserId}
+              />
             </div>
           </Card>
         </section>
