@@ -5,6 +5,7 @@ import { AuthModule } from "./auth/auth.module";
 import { JwtAuthGuard } from "./auth/guards/jwt-auth.guard";
 import { MailModule } from "./mail/mail.module";
 import { PrismaModule } from "./prisma/prisma.module";
+import { ProjectChatModule } from "./project-chat/project-chat.module";
 import { ProjectsModule } from "./projects/projects.module";
 import { TasksModule } from "./tasks/tasks.module";
 import { TeamsModule } from "./teams/teams.module";
@@ -17,6 +18,7 @@ import { UsersModule } from "./users/users.module";
     AuthModule,
     TeamsModule,
     ProjectsModule,
+    ProjectChatModule,
     TasksModule,
     UsersModule,
   ],

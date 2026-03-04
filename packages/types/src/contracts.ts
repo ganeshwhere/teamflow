@@ -77,6 +77,23 @@ export interface TaskDetail extends TaskItem {
   creator?: UserSummary;
 }
 
+export interface ProjectChatMention {
+  id: string;
+  userId: string;
+  user: UserSummary;
+}
+
+export interface ProjectChatMessage {
+  id: string;
+  content: string;
+  createdAt: DateValue;
+  updatedAt: DateValue;
+  projectId: string;
+  authorId: string;
+  author: UserSummary;
+  mentions: ProjectChatMention[];
+}
+
 export interface DeleteResult {
   deleted: boolean;
 }
