@@ -1,16 +1,19 @@
 import { Body, Controller, Headers, Post, UnauthorizedException } from "@nestjs/common";
+import { Throttle } from "@nestjs/throttler";
 import type { User, VerifyTokenResponse } from "@repo/types";
 
 import { Public } from "./decorators/public.decorator";
 import { isAuthBridgeSecretValid } from "./auth.config";
 import { VerifyTokenDto } from "./dto/verify-token.dto";
 import { AuthService } from "./auth.service";
+import { THROTTLE_PRESETS } from "../security/throttling.config";
 
 @Controller("auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Public()
+  @Throttle(THROTTLE_PRESETS.AUTH_VERIFY)
   @Post("verify-token")
   async verifyToken(
     @Body() dto: VerifyTokenDto,
