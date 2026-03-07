@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from "@nestjs/common";
+import { Throttle } from "@nestjs/throttler";
 import { TeamRole, type Team } from "@prisma/client";
 import type {
   DeleteResult,
@@ -13,6 +14,7 @@ import { CurrentUser } from "../auth/decorators/current-user.decorator";
 import { Roles } from "../auth/decorators/roles.decorator";
 import { RolesGuard } from "../auth/guards/roles.guard";
 import type { AuthUser } from "../auth/interfaces/auth-user.interface";
+import { THROTTLE_PRESETS } from "../security/throttling.config";
 
 import { CreateTeamDto } from "./dto/create-team.dto";
 import { InviteMemberDto } from "./dto/invite-member.dto";
@@ -57,6 +59,7 @@ export class TeamsController {
 
   @UseGuards(TeamGuard, RolesGuard)
   @Roles(TeamRole.OWNER, TeamRole.ADMIN)
+  @Throttle(THROTTLE_PRESETS.TEAM_INVITE)
   @Post(":id/invite")
   inviteMember(
     @Param("id") id: string,
@@ -66,6 +69,7 @@ export class TeamsController {
     return this.teamsService.inviteMember(id, dto, user);
   }
 
+  @Throttle(THROTTLE_PRESETS.TEAM_JOIN)
   @Post(":id/join")
   joinTeam(
     @Param("id") id: string,

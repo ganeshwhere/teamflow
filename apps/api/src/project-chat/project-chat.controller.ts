@@ -1,8 +1,10 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
+import { Throttle } from "@nestjs/throttler";
 import type { ProjectChatMessage } from "@repo/types";
 
 import { CurrentUser } from "../auth/decorators/current-user.decorator";
 import type { AuthUser } from "../auth/interfaces/auth-user.interface";
+import { THROTTLE_PRESETS } from "../security/throttling.config";
 import { ProjectMemberGuard } from "../tasks/guards/project-member.guard";
 
 import { CreateProjectChatMessageDto } from "./dto/create-project-chat-message.dto";
@@ -18,6 +20,7 @@ export class ProjectChatController {
     return this.projectChatService.listMessages(projectId);
   }
 
+  @Throttle(THROTTLE_PRESETS.CHAT_WRITE)
   @Post()
   createMessage(
     @Param("projectId") projectId: string,
