@@ -108,6 +108,17 @@ pnpm --filter api test
 pnpm --filter web test
 ```
 
+### Running coverage locally
+
+```bash
+pnpm --filter api test:cov
+pnpm --filter web test:cov
+```
+
+Coverage thresholds are enforced in CI for both suites. See
+[`docs/testing/coverage-policy.md`](./docs/testing/coverage-policy.md)
+for thresholds, artifact details, and rollout policy.
+
 ## Database and Prisma Rules
 
 When changing `apps/api/prisma/schema.prisma`:

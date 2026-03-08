@@ -6,7 +6,8 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "tsc --noEmit --project tsconfig.lint.json",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:cov": "mkdir -p test-results && vitest run --coverage"
   },
   "dependencies": {
     "@auth/core": "^0.37.2",
@@ -30,6 +31,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "^2.1.9",
     "@types/node": "^22.7.5",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

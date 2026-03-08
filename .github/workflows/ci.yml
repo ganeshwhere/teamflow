@@ -36,8 +36,24 @@ jobs:
       - name: Lint
         run: pnpm lint
 
-      - name: Test
-        run: pnpm test
+      - name: Test (server coverage)
+        run: pnpm --filter api test:cov
+
+      - name: Test (client coverage)
+        run: pnpm --filter web test:cov
 
       - name: Build
         run: pnpm build
+
+      - name: Upload Test Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-test-artifacts-${{ github.run_id }}
+          path: |
+            apps/api/coverage
+            apps/api/test-results
+            apps/web/coverage
+            apps/web/test-results
+          if-no-files-found: warn
+          retention-days: 14
