@@ -1,8 +1,9 @@
-import { APP_GUARD } from "@nestjs/core";
+import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
 import { MODULE_METADATA } from "@nestjs/common/constants";
 
 import { RolesGuard } from "./auth/guards/roles.guard";
 import { JwtAuthGuard } from "./auth/guards/jwt-auth.guard";
+import { HttpObservabilityInterceptor } from "./observability/interceptors/http-observability.interceptor";
 import { AppModule } from "./app.module";
 import { AppThrottlerGuard } from "./security/guards/app-throttler.guard";
 
@@ -19,5 +20,20 @@ describe("AppModule guard registration", () => {
 
     expect(appGuards).toEqual([JwtAuthGuard, AppThrottlerGuard]);
     expect(appGuards).not.toContain(RolesGuard);
+  });
+});
+
+describe("AppModule interceptor registration", () => {
+  it("registers HttpObservabilityInterceptor as APP_INTERCEPTOR", () => {
+    const providers = (Reflect.getMetadata(MODULE_METADATA.PROVIDERS, AppModule) ?? []) as Array<{
+      provide?: unknown;
+      useClass?: unknown;
+    }>;
+
+    const appInterceptors = providers
+      .filter((provider) => provider.provide === APP_INTERCEPTOR)
+      .map((provider) => provider.useClass);
+
+    expect(appInterceptors).toEqual([HttpObservabilityInterceptor]);
   });
 });

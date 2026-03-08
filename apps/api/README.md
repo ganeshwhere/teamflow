@@ -84,6 +84,37 @@ API default URL: `http://localhost:4000`
 - Tasks: `/projects/:projectId/tasks/...`
 - Project chat: `/projects/:projectId/chat/messages`
 
+## Observability
+
+- Every request is assigned an `x-request-id`:
+  - if client sends a valid `x-request-id`, server reuses it
+  - otherwise server generates one and returns it in response headers
+- Server emits structured JSON logs for:
+  - all requests (`http.request`)
+  - all write mutations (`http.mutation`)
+  - request failures (`http.error`)
+- Error logs include request ID, route/method, actor context (when authenticated), and route params.
+
+### Local Debugging
+
+Run API and filter logs by request ID:
+
+```bash
+pnpm --filter api dev
+```
+
+In another terminal:
+
+```bash
+curl -i -H "x-request-id: local-debug-12345678" http://localhost:4000/teams
+```
+
+Then search logs:
+
+```bash
+pnpm --filter api dev | rg "local-debug-12345678"
+```
+
 ## Troubleshooting
 
 ### Prisma auth/database errors

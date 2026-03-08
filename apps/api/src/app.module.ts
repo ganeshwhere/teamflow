@@ -1,10 +1,12 @@
-import { Module } from "@nestjs/common";
-import { APP_GUARD } from "@nestjs/core";
+import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
+import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
 import { ThrottlerModule } from "@nestjs/throttler";
 
 import { AuthModule } from "./auth/auth.module";
 import { JwtAuthGuard } from "./auth/guards/jwt-auth.guard";
 import { MailModule } from "./mail/mail.module";
+import { HttpObservabilityInterceptor } from "./observability/interceptors/http-observability.interceptor";
+import { RequestIdMiddleware } from "./observability/middleware/request-id.middleware";
 import { PrismaModule } from "./prisma/prisma.module";
 import { ProjectChatModule } from "./project-chat/project-chat.module";
 import { ProjectsModule } from "./projects/projects.module";
@@ -35,6 +37,14 @@ import { UsersModule } from "./users/users.module";
       provide: APP_GUARD,
       useClass: AppThrottlerGuard,
     },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: HttpObservabilityInterceptor,
+    },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(RequestIdMiddleware).forRoutes("*");
+  }
+}
