@@ -145,6 +145,12 @@ Package-level examples:
 
 - `pnpm --filter api test`
 - `pnpm --filter web test`
+- `pnpm --filter api test:cov`
+- `pnpm --filter web test:cov`
+
+Coverage policy and CI quality gate details:
+
+- [`docs/testing/coverage-policy.md`](./docs/testing/coverage-policy.md)
 
 ## API Route Overview
 
