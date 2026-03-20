@@ -40,7 +40,12 @@ export function EditTeamForm({ teamId, initialName, initialDescription }: EditTe
         });
       }}
     >
-      <Input placeholder="Team name" value={name} onChange={(event) => setName(event.target.value)} required />
+      <Input
+        placeholder="Team name"
+        value={name}
+        onChange={(event) => setName(event.target.value)}
+        required
+      />
       <Textarea
         placeholder="Description (optional)"
         value={description}
@@ -51,7 +56,12 @@ export function EditTeamForm({ teamId, initialName, initialDescription }: EditTe
         <Button type="submit" disabled={isPending}>
           {isPending ? "Saving..." : "Save Changes"}
         </Button>
-        <Button type="button" variant="ghost" disabled={isPending} onClick={() => router.push(`/teams/${teamId}`)}>
+        <Button
+          type="button"
+          variant="secondary"
+          disabled={isPending}
+          onClick={() => router.push(`/teams/${teamId}`)}
+        >
           Cancel
         </Button>
       </div>

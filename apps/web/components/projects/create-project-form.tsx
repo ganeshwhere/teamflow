@@ -23,7 +23,10 @@ export function CreateProjectForm({ teamId }: { teamId: string }) {
         setError(null);
 
         startTransition(async () => {
-          const result = await createProject(teamId, { name, description: description || undefined });
+          const result = await createProject(teamId, {
+            name,
+            description: description || undefined,
+          });
           if (result.error) {
             setError(result.error);
             return;
@@ -31,11 +34,19 @@ export function CreateProjectForm({ teamId }: { teamId: string }) {
 
           setName("");
           setDescription("");
+          if (result.data) {
+            router.push(`/teams/${teamId}/projects/${result.data.id}`);
+          }
           router.refresh();
         });
       }}
     >
-      <Input placeholder="Project name" value={name} onChange={(event) => setName(event.target.value)} required />
+      <Input
+        placeholder="Project name"
+        value={name}
+        onChange={(event) => setName(event.target.value)}
+        required
+      />
       <Textarea
         placeholder="Description (optional)"
         value={description}

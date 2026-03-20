@@ -22,7 +22,9 @@ export function TeamMembersDialog({ members }: { members: TeamMemberItem[] }) {
 
     return members.filter((member) => {
       const displayName = member.user.name ?? member.user.email;
-      return `${displayName} ${member.user.email} ${member.role}`.toLowerCase().includes(searchValue);
+      return `${displayName} ${member.user.email} ${member.role}`
+        .toLowerCase()
+        .includes(searchValue);
     });
   }, [members, query]);
 
@@ -30,9 +32,9 @@ export function TeamMembersDialog({ members }: { members: TeamMemberItem[] }) {
     <>
       <Button
         type="button"
-        variant="ghost"
+        variant="secondary"
         onClick={() => setOpen(true)}
-        className="h-9 rounded-lg border border-border bg-popover px-3 text-sm font-medium text-foreground hover:bg-accent"
+        className="h-9 rounded-lg px-3"
       >
         <Users className="mr-1.5 h-4 w-4" />
         Members

@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import type { ProjectItem } from "@repo/types";
+import { Button } from "@/components/ui/button";
 
 import { ProjectOverviewCard } from "@/components/projects/project-overview-card";
 import { Card } from "@/components/ui/card";
@@ -45,7 +47,18 @@ export function ProjectsBrowser({ items }: { items: GlobalProjectItem[] }) {
   }, [items, query, sortBy]);
 
   if (items.length === 0) {
-    return <Card className="text-sm text-muted-foreground">No projects available yet.</Card>;
+    return (
+      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-20 px-6 text-center">
+        <h2 className="text-2xl font-bold mb-3 tracking-tight">No projects yet</h2>
+        <p className="text-muted-foreground mb-8 max-w-sm">
+          Everything starts with a project. Jump into a team to create one and start delivering
+          value.
+        </p>
+        <Link href="/teams">
+          <Button className="font-semibold px-8 h-12">Browse Teams</Button>
+        </Link>
+      </div>
+    );
   }
 
   return (

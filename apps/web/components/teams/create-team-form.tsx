@@ -32,11 +32,20 @@ export function CreateTeamForm({ onSuccess }: { onSuccess?: () => void } = {}) {
           setName("");
           setDescription("");
           onSuccess?.();
+
+          if (result.data?.id) {
+            router.push(`/teams/${result.data.id}`);
+          }
           router.refresh();
         });
       }}
     >
-      <Input placeholder="Team name" value={name} onChange={(event) => setName(event.target.value)} required />
+      <Input
+        placeholder="Team name"
+        value={name}
+        onChange={(event) => setName(event.target.value)}
+        required
+      />
       <Textarea
         placeholder="Description (optional)"
         value={description}

@@ -10,6 +10,7 @@ import { ProjectOverviewCard } from "@/components/projects/project-overview-card
 import { SectionSkeleton } from "@/components/layout/section-skeleton";
 import { InviteMemberDialog } from "@/components/teams/invite-member-dialog";
 import { TeamMembersDialog } from "@/components/teams/team-members-dialog";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 async function TeamOverview({ teamId }: { teamId: string }) {
@@ -42,7 +43,9 @@ async function TeamOverview({ teamId }: { teamId: string }) {
 
       <div className="grid gap-3 sm:grid-cols-2">
         <Card className="grid gap-1 border-border bg-card">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Members</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            Members
+          </p>
           <p className="text-2xl font-semibold text-foreground">{(team.members ?? []).length}</p>
           <p className="inline-flex items-center gap-1 text-xs text-muted-foreground">
             <Users className="h-3.5 w-3.5" />
@@ -51,7 +54,9 @@ async function TeamOverview({ teamId }: { teamId: string }) {
         </Card>
 
         <Card className="grid gap-1 border-border bg-card">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Projects</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            Projects
+          </p>
           <p className="text-2xl font-semibold text-foreground">{projects.length}</p>
           <p className="inline-flex items-center gap-1 text-xs text-muted-foreground">
             <FolderKanban className="h-3.5 w-3.5" />
@@ -64,23 +69,23 @@ async function TeamOverview({ teamId }: { teamId: string }) {
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="grid gap-0.5">
             <h2 className="text-lg font-semibold text-foreground">Projects</h2>
-            <p className="text-xs text-muted-foreground">Track active streams and jump directly into delivery.</p>
+            <p className="text-xs text-muted-foreground">
+              Track active streams and jump directly into delivery.
+            </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <Link
-              href={`/teams/${teamId}/projects/new`}
-              className="inline-flex items-center gap-1 rounded-md border border-border bg-popover px-3 py-2 text-sm text-foreground transition-colors hover:bg-accent"
-            >
-              <PlusCircle className="h-4 w-4" />
-              New project
+            <Link href={`/teams/${teamId}/projects/new`}>
+              <Button className="h-9 gap-1.5 px-3">
+                <PlusCircle className="h-4 w-4" />
+                New project
+              </Button>
             </Link>
-            <Link
-              href={`/teams/${teamId}/projects`}
-              className="inline-flex items-center gap-1 rounded-md border border-border bg-popover px-3 py-2 text-sm text-foreground transition-colors hover:bg-accent"
-            >
-              <FolderKanban className="h-4 w-4" />
-              Browse all
+            <Link href={`/teams/${teamId}/projects`}>
+              <Button variant="secondary" className="h-9 gap-1.5 px-3">
+                <FolderKanban className="h-4 w-4" />
+                Browse all
+              </Button>
             </Link>
           </div>
         </div>
@@ -92,18 +97,22 @@ async function TeamOverview({ teamId }: { teamId: string }) {
             ))}
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">No projects yet. Use quick actions to create one.</p>
+          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-20 px-6 text-center">
+            <h2 className="text-2xl font-bold mb-3 tracking-tight">No projects yet</h2>
+            <p className="text-muted-foreground mb-8 max-w-sm">
+              Create your first project in this team to start tracking work and delivery progress.
+            </p>
+            <Link href={`/teams/${teamId}/projects/new`}>
+              <Button className="font-semibold px-8 h-12">Create Project</Button>
+            </Link>
+          </div>
         )}
       </section>
     </div>
   );
 }
 
-export default async function TeamPage({
-  params
-}: {
-  params: Promise<{ teamId: string }>;
-}) {
+export default async function TeamPage({ params }: { params: Promise<{ teamId: string }> }) {
   const { teamId } = await params;
 
   return (

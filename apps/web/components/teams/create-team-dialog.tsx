@@ -11,7 +11,12 @@ export function CreateTeamDialog() {
 
   return (
     <>
-      <Button onClick={() => setOpen(true)} type="button">
+      <Button
+        onClick={() => setOpen(true)}
+        type="button"
+        variant="primary"
+        className="font-semibold"
+      >
         Create Team
       </Button>
       <Modal

@@ -6,6 +6,7 @@ import type { TeamListItem } from "@repo/types";
 
 import { TeamCard } from "@/components/teams/team-card";
 import { TeamsFilterBar, type TeamSortOption } from "@/components/teams/teams-filter-bar";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 export function TeamsBrowser({ teams }: { teams: TeamListItem[] }) {
@@ -39,15 +40,16 @@ export function TeamsBrowser({ teams }: { teams: TeamListItem[] }) {
 
   if (teams.length === 0) {
     return (
-      <Card className="grid gap-2">
-        <p className="text-sm font-semibold text-foreground">No teams yet</p>
-        <p className="text-sm text-muted-foreground">Create your first team to start organizing projects and tasks.</p>
-        <div>
-          <Link href="/teams/new" className="text-sm font-semibold text-primary hover:underline">
-            Create team
-          </Link>
-        </div>
-      </Card>
+      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-20 px-6 text-center">
+        <h2 className="text-2xl font-bold mb-3 tracking-tight">No teams yet</h2>
+        <p className="text-muted-foreground mb-8 max-w-sm">
+          Create your first team to start organizing projects, tasks and collaborate with your
+          colleagues.
+        </p>
+        <Link href="/teams/new">
+          <Button className="font-semibold px-8 h-12">Create Team</Button>
+        </Link>
+      </div>
     );
   }
 

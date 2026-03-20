@@ -47,7 +47,11 @@ export class HttpObservabilityInterceptor implements NestInterceptor {
           ? "http.mutation"
           : "http.request";
 
-        this.logger.log(this.toJsonLog(this.buildBaseLog(request, event, statusCode, durationMs)));
+        if (event !== "http.request") {
+          this.logger.log(
+            this.toJsonLog(this.buildBaseLog(request, event, statusCode, durationMs)),
+          );
+        }
       }),
       catchError((error: unknown) => {
         const durationMs = Number((performance.now() - startedAt).toFixed(1));

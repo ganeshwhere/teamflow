@@ -3,7 +3,7 @@ import {
   ExecutionContext,
   ForbiddenException,
   Injectable,
-  NotFoundException
+  NotFoundException,
 } from "@nestjs/common";
 
 import { PrismaService } from "../../prisma/prisma.service";
@@ -30,9 +30,9 @@ export class TeamMemberGuard implements CanActivate {
       where: {
         teamId_userId: {
           teamId,
-          userId: request.user.sub
-        }
-      }
+          userId: request.user.sub,
+        },
+      },
     });
 
     if (!membership) {

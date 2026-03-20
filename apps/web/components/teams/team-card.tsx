@@ -83,7 +83,7 @@ export function TeamCard({ team }: { team: TeamListItem }) {
       }}
       className="grid h-full cursor-pointer gap-4 border-border bg-card p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      <div className="relative z-10 flex items-start gap-3">
+      <div className="relative z-20 flex items-start gap-3">
         <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-sm font-semibold text-foreground">
           {teamInitials(team.name)}
         </span>

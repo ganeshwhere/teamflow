@@ -6,6 +6,7 @@ import { MoreVertical, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { deleteTeam } from "@/actions/team.actions";
+import { Button } from "@/components/ui/button";
 
 type TeamCardMenuProps = {
   teamId: string;
@@ -140,7 +141,7 @@ export function TeamCardMenu({ teamId, teamName, onErrorChange }: TeamCardMenuPr
               focusMenuItem(menuItems.length - 1);
             }
           }}
-          className="absolute right-0 top-10 z-10 grid min-w-[180px] gap-1 rounded-lg border border-border bg-card p-1 shadow-lg"
+          className="absolute right-0 top-10 z-50 grid min-w-[180px] gap-1 rounded-lg border border-border bg-card p-1 shadow-lg"
         >
           <Link
             data-menu-item
@@ -163,11 +164,11 @@ export function TeamCardMenu({ teamId, teamName, onErrorChange }: TeamCardMenuPr
           >
             Archive team
           </button>
-          <button
+          <Button
             data-menu-item
             role="menuitem"
             tabIndex={0}
-            type="button"
+            variant="danger"
             disabled={isDeleting}
             onClick={() => {
               onErrorChange?.(null);
@@ -186,11 +187,11 @@ export function TeamCardMenu({ teamId, teamName, onErrorChange }: TeamCardMenuPr
                 router.refresh();
               });
             }}
-            className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-destructive transition-colors hover:bg-destructive/10 disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full justify-start gap-2 h-9 text-xs"
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-3.5 w-3.5" />
             {isDeleting ? "Deleting..." : "Delete team"}
-          </button>
+          </Button>
         </div>
       ) : null}
     </div>

@@ -7,6 +7,7 @@ import { getMyTeams } from "@/actions/team.actions";
 import { PageHeader } from "@/components/layout/page-header";
 import { SectionSkeleton } from "@/components/layout/section-skeleton";
 import { ProjectsBrowser, type GlobalProjectItem } from "@/components/projects/projects-browser";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 async function ProjectsContent() {
@@ -15,9 +16,16 @@ async function ProjectsContent() {
 
   if (teams.length === 0) {
     return (
-      <Card className="text-sm text-muted-foreground">
-        No teams found. Create a team first to start managing projects.
-      </Card>
+      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-20 px-6 text-center">
+        <h2 className="text-2xl font-bold mb-3 tracking-tight">No teams found</h2>
+        <p className="text-muted-foreground mb-8 max-w-sm">
+          Create your first team to start organizing projects, tasks and collaborate with your
+          colleagues.
+        </p>
+        <Link href="/teams/new">
+          <Button className="font-semibold px-8 h-12">Create Team</Button>
+        </Link>
+      </div>
     );
   }
 
